@@ -1,3 +1,6 @@
+# Created by https://www.gitignore.io and Android Studio
+
+### Android ###
 # Built application files
 *.apk
 *.ap_
@@ -25,3 +28,20 @@ proguard/
 
 # Log Files
 *.log
+
+### Android Patch ###
+gen-external-apklibs
+
+# Vim temporary files
+*.swp
+*.swo
+
+# Mac files
+.DS_Store
+
+# IntelliJ files
+Zenodotus/.gradle
+Zenodotus/local.properties
+Zenodotus/.idea/*
+Zenodotus/build
+*.iml
