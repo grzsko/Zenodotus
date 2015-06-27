@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Zenodotus</string>
-    <string name="title_activity_fetch_capabilities">FetchCapabilitiesActivity</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="author_note">App\'s author name is Grzegorz
+        Skoraczynski.</string>
+    <string name="loading_note">App is fetching constant data from Perseus server. It may take some time. Stay tune, next startups will take shorter!</string>
 </resources>

@@ -1,24 +1,26 @@
-package zenodotus.front;
+package gs.zenodotus.front;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import gs.zenodotus.R;
 
-public class FetchCapabilitiesActivity extends ActionBarActivity {
+
+public class MainDisplayActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fetch_capabilities);
+        setContentView(R.layout.activity_main_display);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_fetch_capabilities, menu);
+        getMenuInflater().inflate(R.menu.menu_main_display, menu);
         return true;
     }
 
