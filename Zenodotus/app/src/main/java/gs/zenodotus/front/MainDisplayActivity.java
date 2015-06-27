@@ -1,9 +1,11 @@
-package gs.zenodotus;
+package gs.zenodotus.front;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import gs.zenodotus.R;
 
 
 public class MainDisplayActivity extends Activity {

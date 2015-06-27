@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="maroon" type="color">#884221</item>
+    <item name="dark_grey" type="color">#454545</item>
+    <color name="white">@android:color/white</color>
 </resources>
