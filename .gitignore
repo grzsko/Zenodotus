@@ -45,3 +45,7 @@ Zenodotus/local.properties
 Zenodotus/.idea/*
 Zenodotus/build
 *.iml
+
+# Generated doc files
+docs/html/
+docs/latex/
