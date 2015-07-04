@@ -1,5 +1,9 @@
 package gs.zenodotus.back;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+
 /**
  * Factory that provides data fetched online from Perseus or cached in db.
  *
@@ -10,4 +14,13 @@ package gs.zenodotus.back;
  * @author grzsko
  *
  */
-public abstract class DataFactory {}
+public abstract class DataFactory {
+    protected XmlNode parseXml(InputStream inputStream) {
+        return null;
+    }
+    protected abstract InputStream getXmlFromPerseus(String url)
+            throws IOException;
+
+    public abstract XmlNode getCapabilitiesFromPerseus();
+
+}

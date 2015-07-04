@@ -22,7 +22,10 @@ public class GetCapabilitiesCommand extends Command {
             // TODO some sqlite preparation?
         } else {
             DataFactory dataFactory = GlobalDataProvider.getFactory();
-//            dataFactory.getCapabilities();
+            XmlNode parsedCapabilities =
+                    dataFactory.getCapabilitiesFromPerseus();
+            Log.v("XmlNode", parsedCapabilities.getName());
+            dataFactory.storeCapabilitiesInDb(parsedCapabilities);
             return null;
         }
     }
