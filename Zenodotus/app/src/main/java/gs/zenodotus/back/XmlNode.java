@@ -1,6 +1,7 @@
 package gs.zenodotus.back;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Class that represents data extracted from gDE response.
@@ -15,6 +16,7 @@ public class XmlNode {
     private String name;
     private String text;
     private ArrayList<XmlNode> children;
+    private HashMap<String, String> attributes;
 
     /**
      * Constructor for nodes with children.
@@ -22,23 +24,27 @@ public class XmlNode {
      * @param name     tag name
      * @param children list of child nodes
      */
-    public XmlNode(String name, ArrayList<XmlNode> children) {
+    public XmlNode(String name, ArrayList<XmlNode> children,
+                   HashMap<String, String> attributes) {
         this.name = name;
         this.text = null;
         this.children = children;
+        this.attributes = attributes;
     }
 
     /**
      * Constructor for nodes with value and empty nodes
-     * .
      *
      * @param name tag name
      * @param text tag value or empty string for empty nodes
+     * @param attributes map with attributes stored in start tag of given node
      */
-    public XmlNode(String name, String text) {
+    public XmlNode(String name, String text,
+                   HashMap<String, String> attributes) {
         this.name = name;
         this.text = text;
         this.children = null;
+        this.attributes = attributes;
     }
 
     /**
@@ -51,12 +57,27 @@ public class XmlNode {
     }
 
     /**
-     * Get value of this node.
+     * Get value of this node or empty string.
      *
      * @return text value
      */
     public String getText() {
-        return text;
+        if (text != null) {
+            return text;
+        }
+        return "";
+    }
+
+    /**
+     * Get count of attributes stored in start tag of this node.
+     *
+     * @return count of attributes for this node
+     */
+    public int getNumberOfAttributes() {
+        if (attributes != null) {
+            return attributes.size();
+        }
+        return 0;
     }
 
     /**
@@ -103,7 +124,6 @@ public class XmlNode {
      *
      * @param childName name of child to be returned
      * @return child XmlNode
-     * @throws Exception if child of specified name does not exist
      */
     public XmlNode getChild(String childName) {
         try {
@@ -125,7 +145,6 @@ public class XmlNode {
      *
      * @param index index of child to be returned
      * @return child XmlNode
-     * @throws Exception if index of child is out of bounds
      */
     public XmlNode getChild(int index) {
         try {
@@ -134,5 +153,21 @@ public class XmlNode {
             System.out.println("Call to non-existent child in getChild(int)!");
         }
         return null;
+    }
+
+    /**
+     * Returns value for given attribute name from start tag of given node
+     *
+     * @param attributeName name of attribute
+     * @return value of attribue or null if attribute with given name does
+     * not exist
+     */
+    public String getAttribute(String attributeName) {
+       return attributes.get(attributeName);
+    }
+
+    @Override public String toString() {
+        return "XmlNode instance, name: " + getName() + " and text: " +
+                getText();
     }
 }

@@ -21,6 +21,7 @@ public abstract class DataFactory {
     protected abstract InputStream getXmlFromPerseus(String url)
             throws IOException;
 
-    public abstract XmlNode getCapabilitiesFromPerseus();
+    protected abstract XmlNode getCapabilitiesFromPerseus();
 
+    public abstract void storeCapabilitiesInDb();
 }

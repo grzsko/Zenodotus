@@ -1,6 +1,7 @@
 package gs.zenodotus.back;
 
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -9,6 +10,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class XmlParser {
     private static final String ns = null;
@@ -27,6 +29,27 @@ public class XmlParser {
     }
 
     /**
+     * Retrieves attributes, if actual event is START_TAG
+     *
+     * @return hashmap with
+     */
+    private HashMap<String, String> getAttributes() {
+        if (parser.getAttributeCount() > 0) {
+            HashMap<String, String> attributes = new HashMap<String, String>();
+            for (int i = 0; i < parser.getAttributeCount(); i++) {
+                attributes.put(parser.getAttributeName(i),
+                        parser.getAttributeValue(i));
+            }
+            return attributes;
+        } else if (parser.getAttributeCount() == 0) {
+            return null;
+        }
+        Log.d("XmlParser",
+                "Error occurred, getAttributes invoked not in " + "START_TAG");
+        return null;
+    }
+
+    /**
      * Parses XML document and returns tree structure which represents that
      * document.
      *
@@ -42,7 +65,10 @@ public class XmlParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             goToNextStartTag();
-
+            Log.v("XML parsing",
+                    (parser.getEventType() == XmlPullParser.START_TAG) + "");
+            // We are in START_TAG
+            HashMap<String, String> attributes = getAttributes();
             String mainName = parser.getName();
 
             ArrayList<XmlNode> currentList = new ArrayList<XmlNode>();
@@ -54,7 +80,7 @@ public class XmlParser {
                 parser.next();
             }
             parser.require(XmlPullParser.END_TAG, ns, mainName);
-            return new XmlNode(mainName, currentList);
+            return new XmlNode(mainName, currentList, attributes);
         } finally {
             in.close();
         }
@@ -74,6 +100,7 @@ public class XmlParser {
         String name = parser.getName().toString();
         // START_TAG
         parser.require(XmlPullParser.START_TAG, ns, name);
+        HashMap<String, String> attributes = getAttributes();
         // Find next tag (ignore whitespace)
         do {
             parser.next();
@@ -83,10 +110,10 @@ public class XmlParser {
         if (parser.getEventType() == XmlPullParser.TEXT)
         // Next tag is TEXT
         {
-            return getXmlTextNode(parser, name);
+            return getXmlTextNode(parser, name, attributes);
         } else if (parser.getEventType() == XmlPullParser.END_TAG) {
             // Next tag is END_TAG - empty node
-            return new XmlNode(name, "");
+            return new XmlNode(name, "", attributes);
         } else if (parser.getEventType() == XmlPullParser.START_TAG) {
             // Next tag is START_TAG - meaning child nodes
             ArrayList<XmlNode> currentList = new ArrayList<XmlNode>();
@@ -99,9 +126,9 @@ public class XmlParser {
             }
             // END_TAG - no more children
             parser.require(XmlPullParser.END_TAG, ns, name);
-            return new XmlNode(name, currentList);
+            return new XmlNode(name, currentList, attributes);
         }
-        System.out.println("Error occurred");
+        Log.v("XmlParser", "Error occurred");
         return null;
     }
 
@@ -117,13 +144,14 @@ public class XmlParser {
      * @throws XmlPullParserException when XML Parser has problems with document
      * @throws IOException
      */
-    private XmlNode getXmlTextNode(XmlPullParser parser, String name)
+    private XmlNode getXmlTextNode(XmlPullParser parser, String name,
+                                   HashMap<String, String> attributes)
             throws XmlPullParserException, IOException {
         // Get text
         String text = parser.getText();
         // Next tag - END_TAG
         parser.nextTag();
         parser.require(XmlPullParser.END_TAG, ns, name);
-        return new XmlNode(name, text);
+        return new XmlNode(name, text, attributes);
     }
 }

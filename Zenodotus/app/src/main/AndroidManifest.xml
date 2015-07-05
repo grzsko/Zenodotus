@@ -7,7 +7,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:name="com.activeandroid.app.Application" >
         <activity
             android:name=".front.SplashScreenActivity"
             android:label="@string/app_name"
@@ -25,7 +26,12 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
+        <meta-data android:name="AA_DB_NAME"
+                   android:value="perseus_capabilities.db" />
+        <meta-data android:name="AA_DB_VERSION"
+                   android:value="1" />
+        <meta-data android:name="AA_MODELS"
+                   android:value="gs.zenodotus.back.database" />
     </application>
 
 </manifest>
