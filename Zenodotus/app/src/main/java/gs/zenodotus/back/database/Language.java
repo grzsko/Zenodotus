@@ -20,6 +20,6 @@ public enum Language {
             }
         }
         throw new IllegalArgumentException(
-                "There is no language with given abbreviation");
+                "There is no language with abbreviation: " + abbreviation);
     }
 }

@@ -11,7 +11,7 @@ public class Work extends Model {
     public String title;
 
     @Column(index = true)
-    public Author category;
+    public Author author;
 
     @Column
     public String urn;
@@ -23,10 +23,10 @@ public class Work extends Model {
         super();
     }
 
-    public Work(String title, Author category, String urn, Language language) {
+    public Work(String title, Author author, String urn, Language language) {
         super();
         this.title = title;
-        this.category = category;
+        this.author = author;
         this.urn = urn;
         this.language = language;
     }

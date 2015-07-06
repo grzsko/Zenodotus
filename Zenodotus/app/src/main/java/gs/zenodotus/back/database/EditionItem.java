@@ -11,6 +11,9 @@ public class EditionItem extends Model {
     public String description;
 
     @Column
+    public String label;
+
+    @Column
     public Language language;
 
     @Column(index = true)
@@ -20,8 +23,10 @@ public class EditionItem extends Model {
         super();
     }
 
-    public EditionItem(String description, Language language, Work work) {
+    public EditionItem(String description, String label, Language language,
+                       Work work) {
         this.description = description;
+        this.label = label;
         this.language = language;
         this.work = work;
     }

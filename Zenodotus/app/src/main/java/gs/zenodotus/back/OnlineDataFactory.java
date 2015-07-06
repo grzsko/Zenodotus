@@ -3,6 +3,7 @@ package gs.zenodotus.back;
 import android.util.Log;
 
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Select;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -60,53 +61,8 @@ public class OnlineDataFactory extends DataFactory {
         }
     }
 
-    public void storeCapabilitiesInDb() {
-        // TODO refactor this!
-        XmlNode parsedCapabilities = this.getCapabilitiesFromPerseus();
-        Log.d("Storing capabilities1", parsedCapabilities.getName());
-        int numberOfTextgroups = parsedCapabilities.getChildrenSize();
-        List<Author> authors = new LinkedList<>();
-        List<Work> works = new LinkedList<>();
-        List<EditionItem> editions = new LinkedList<>();
-        for (int i = 0; i < numberOfTextgroups; i++) {
-//            Log.d("Storing capabilities", "In loop");
-            XmlNode authorNode = parsedCapabilities.getChild(i);
-            Log.d("Storing capabilities2", authorNode.getName());
-            if (authorNode.getName().equals("textgroup")) {
-                Author author =
-                        new Author(authorNode.getChild("groupname").getText());
-//                author.save();
-                int numberOfHerWorks = authorNode.getChildrenSize();
-                for (int j = 0; j < numberOfHerWorks; j++) {
-                    XmlNode workNode = authorNode.getChild(j);
-                    if (workNode.getText().equals("work")) {
-                        Work work =
-                                new Work(workNode.getChild("title").getText(),
-                                        author, workNode.getAttribute("urn"),
-                                        Language.fromAbbreviation(
-                                                workNode.getAttribute(
-                                                        "xml:lang")));
-                        works.add(work);
-                        int numberOfItsEditions = workNode.getChildrenSize();
-                        for (int k = 0; k < numberOfItsEditions; k++) {
-                            XmlNode editionNode = workNode.getChild(k);
-                            Language language = Language.fromAbbreviation(
-                                    editionNode.getAttribute("xml:lang"));
-                            if (language == null) {
-                                language = work.getLanguage();
-                            }
-                            EditionItem edition = new EditionItem(
-                                    editionNode.getChild("label").getText(),
-                                    language, work);
-                            editions.add(edition);
-                        }
-                    }
-                }
-                authors.add(author);
-            } else {
-                continue;
-            }
-        }
+    private void loadDataToDb(List<Author> authors, List<Work> works,
+                              List<EditionItem> editions) {
         ActiveAndroid.beginTransaction();
         try {
             for (Author author : authors) {
@@ -115,34 +71,92 @@ public class OnlineDataFactory extends DataFactory {
             for (Work work : works) {
                 work.save();
             }
-            ActiveAndroid.setTransactionSuccessful();
             for (EditionItem edition : editions) {
                 edition.save();
             }
+            ActiveAndroid.setTransactionSuccessful();
         } finally {
             ActiveAndroid.endTransaction();
         }
-//        ActiveAndroid.beginTransaction();
-//        try {
-//            for (Work work : works) {
-//                work.save();
-//            }
-//
-//            ActiveAndroid.setTransactionSuccessful();
-//        } finally {
-//            ActiveAndroid.endTransaction();
-//        }
-//        ActiveAndroid.beginTransaction();
-//        try {
-//            for (EditionItem edition : editions) {
-//                edition.save();
-//            }
-//
-//            ActiveAndroid.setTransactionSuccessful();
-//        } finally {
-//            ActiveAndroid.endTransaction();
-//        }
-        Log.v("Storing capabilities3", authors.size() + "");
+    }
+
+    private void parseHerEditions(XmlNode workNode, Work work,
+                                  List<EditionItem> editions) {
+        int numberOfItsEditions = workNode.getChildrenSize();
+        for (int k = 0; k < numberOfItsEditions; k++) {
+            XmlNode editionNode = workNode.getChild(k);
+            if (editionNode.getName()
+                    .equals(ConstantStringsContainer.EDITION_STR) ||
+                    editionNode.getName()
+                            .equals(ConstantStringsContainer.TRANSLATION_STR)) {
+                Language language;
+                if (editionNode
+                        .getAttribute(ConstantStringsContainer.LANG_STR) ==
+                        null) {
+                    language = work.getLanguage();
+                } else {
+                    language = Language.fromAbbreviation(editionNode
+                            .getAttribute(ConstantStringsContainer.LANG_STR));
+                }
+                EditionItem edition = new EditionItem(editionNode
+                        .getChild(ConstantStringsContainer.DESCRIPTION_STR)
+                        .getText(),
+                        editionNode.getChild(ConstantStringsContainer.LABEL_STR)
+                                .getText(), language, work);
+                editions.add(edition);
+            }
+        }
+    }
+
+    private void parseHerWorks(XmlNode authorNode, Author author,
+                               List<Work> works, List<EditionItem> editions) {
+        int numberOfHerWorks = authorNode.getChildrenSize();
+        for (int j = 0; j < numberOfHerWorks; j++) {
+            XmlNode workNode = authorNode.getChild(j);
+            if (workNode.getName().equals(ConstantStringsContainer.WORK_STR)) {
+                Work work = new Work(
+                        workNode.getChild(ConstantStringsContainer.TITLE_STR)
+                                .getText(), author,
+                        workNode.getAttribute("urn"), Language.fromAbbreviation(
+                        workNode.getAttribute(
+                                ConstantStringsContainer.LANG_STR)));
+                works.add(work);
+                parseHerEditions(workNode, work, editions);
+            }
+        }
+    }
+
+    public void storeCapabilitiesInDb() {
+        XmlNode parsedCapabilities = this.getCapabilitiesFromPerseus();
+        int numberOfTextgroups = parsedCapabilities.getChildrenSize();
+        List<Author> authors = new LinkedList<>();
+        List<Work> works = new LinkedList<>();
+        List<EditionItem> editions = new LinkedList<>();
+        for (int i = 0; i < numberOfTextgroups; i++) {
+            XmlNode authorNode = parsedCapabilities.getChild(i);
+            if (authorNode.getName()
+                    .equals(ConstantStringsContainer.TEXTGROUP_STR)) {
+                Author author = new Author(authorNode
+                        .getChild(ConstantStringsContainer.GROUPNAME_STR)
+                        .getText());
+                parseHerWorks(authorNode, author, works, editions);
+                authors.add(author);
+            }
+        }
+        loadDataToDb(authors, works, editions);
+    }
+
+    private class ConstantStringsContainer {
+        static final String TEXTGROUP_STR = "textgroup";
+        static final String GROUPNAME_STR = "groupname";
+        static final String WORK_STR = "work";
+        static final String LABEL_STR = "label";
+        static final String LANG_STR = "xml:lang";
+        static final String TRANSLATION_STR = "translation";
+        static final String DESCRIPTION_STR = "description";
+        static final String TITLE_STR = "title";
+        static final String URN_STR = "urn";
+        static final String EDITION_STR = "edition";
     }
 
 }
