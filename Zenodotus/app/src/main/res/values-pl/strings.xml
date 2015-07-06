@@ -5,5 +5,7 @@
     <string name="hello_world">Ahoj przygodo!</string>
     <string name="title_activity_splash_screen">Ekran plamisty</string>
     <string name="author_note">Autor aplikacji: Grzegorz Skoraczyński</string>
-    <string name="loading_note">Aplikacja pobiera dane z serwera Perseusza. Ta czynność może chwilę zająć. Nie poddawaj się, następnym razem aplikacja uruchomi się szybciej!</string>
+    <string name="loading_note">Aplikacja pobiera dane z serwera Perseusza.
+        Ta czynność może trwać długo. Nie poddawaj się, następnym razem
+        aplikacja uruchomi się szybciej!</string>
 </resources>
