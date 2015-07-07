@@ -1,8 +1,7 @@
 package gs.zenodotus.back;
 
-import android.util.Log;
-
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -132,6 +131,9 @@ public class OnlineDataFactory extends DataFactory {
         List<Author> authors = new LinkedList<>();
         List<Work> works = new LinkedList<>();
         List<EditionItem> editions = new LinkedList<>();
+        new Delete().from(EditionItem.class).execute();
+        new Delete().from(Work.class).execute();
+        new Delete().from(Author.class).execute();
         for (int i = 0; i < numberOfTextgroups; i++) {
             XmlNode authorNode = parsedCapabilities.getChild(i);
             if (authorNode.getName()
@@ -144,6 +146,18 @@ public class OnlineDataFactory extends DataFactory {
             }
         }
         loadDataToDb(authors, works, editions);
+    }
+
+    @Override
+    public List<Author> getAuthors(String name) {
+        return new Select().from(Author.class).where("name " + "LIKE ?",
+                "%" + name + "%").execute();
+    }
+
+    @Override
+    public List<Work> getWorks(Author author) {
+        return new Select().from(Work.class).where("author = ?", author.getId
+                ()).execute();
     }
 
     private class ConstantStringsContainer {

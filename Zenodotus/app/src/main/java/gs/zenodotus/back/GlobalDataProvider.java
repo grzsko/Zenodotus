@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import gs.zenodotus.R;
+import gs.zenodotus.front.SplashScreenActivity;
 
 //import java.util.Calendar;
 
@@ -53,5 +54,18 @@ public class GlobalDataProvider {
         yearAgo.add(Calendar.YEAR, -1);
         Date yearAgoTimeDate = yearAgo.getTime();
         return yearAgoTimeDate.before(storedTimeDate);
+    }
+
+    public static void setCapabilitiesActual(Context context) {
+        Calendar now = Calendar.getInstance();
+        long nowPlain = now.getTimeInMillis();
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                context.getString(R.string.global_app_preference_key),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(
+                context.getString(R.string.preference_last_actualization_key),
+                nowPlain);
+        editor.commit();
     }
 }

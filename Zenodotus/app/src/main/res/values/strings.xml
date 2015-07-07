@@ -4,9 +4,11 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
-    <string name="author_note">App\'s author name is Grzegorz
-        Skoraczynski.</string>
+    <string name="author_note">App\'s author name is Grzegorz Skoraczynski.</string>
     <string name="loading_note">App is fetching constant data from Perseus server. It may take some time. Stay tune, next startups will take shorter!</string>
     <string name="preference_last_actualization_key">last_capabillities_actualization_time</string>
     <string name="global_app_preference_key">global_apps_preferences</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_placeholder">Type here author\'s name...</string>
 </resources>

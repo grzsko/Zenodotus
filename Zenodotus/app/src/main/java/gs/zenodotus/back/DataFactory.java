@@ -3,6 +3,10 @@ package gs.zenodotus.back;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.List;
+
+import gs.zenodotus.back.database.Author;
+import gs.zenodotus.back.database.Work;
 
 /**
  * Factory that provides data fetched online from Perseus or cached in db.
@@ -24,4 +28,8 @@ public abstract class DataFactory {
     protected abstract XmlNode getCapabilitiesFromPerseus();
 
     public abstract void storeCapabilitiesInDb();
+
+    abstract List<Author> getAuthors(String name);
+
+    public abstract List<Work> getWorks(Author author);
 }

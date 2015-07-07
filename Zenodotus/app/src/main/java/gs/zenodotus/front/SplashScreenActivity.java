@@ -7,6 +7,7 @@ import android.util.Log;
 
 import gs.zenodotus.R;
 import gs.zenodotus.back.GetCapabilitiesCommand;
+import gs.zenodotus.back.GlobalDataProvider;
 
 public class SplashScreenActivity extends Activity {
 
@@ -15,6 +16,7 @@ public class SplashScreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 //        this.deleteDatabase("perseus_capabilities.db");
+//        GlobalDataProvider.setCapabilitiesActual(this);
 //        Log.v("Splash screen", "Done!");
         GetCapabilitiesCommand command = new GetCapabilitiesCommand(this);
         command.execute();

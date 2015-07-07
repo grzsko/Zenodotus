@@ -19,11 +19,12 @@ public class GetCapabilitiesCommand extends Command {
     protected Void doInBackground(Void... arg0) {
         if (GlobalDataProvider.areCapabillitiesActual(hostActivity.get())) {
             return null;
-            // TODO some sqlite preparation?
         } else {
             DataFactory dataFactory = GlobalDataProvider.getFactory();
 //            Log.v("XmlNode", parsedCapabilities.getName());
             dataFactory.storeCapabilitiesInDb();
+            // TODO maybe actualization should moved somewhere else?
+            GlobalDataProvider.setCapabilitiesActual(hostActivity.get());
             return null;
         }
     }
