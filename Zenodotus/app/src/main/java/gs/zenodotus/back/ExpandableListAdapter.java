@@ -14,6 +14,7 @@ import java.util.List;
 
 import gs.zenodotus.R;
 import gs.zenodotus.back.database.Work;
+import gs.zenodotus.front.BooksListFragment;
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -21,6 +22,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private final List<AuthorRow> groups;
     public LayoutInflater inflater;
     private Context context;
+    private BooksListFragment fragment;
+    // TODO will it stay after changes?
 
     public ExpandableListAdapter(Fragment fragment, List<AuthorRow> authors) {
         context = fragment.getActivity();
@@ -29,7 +32,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 //            AuthorRow authorRow = new AuthorRow(groups.get(i));
 //            this.groups.add(authorRow);
 //        }
-        inflater = fragment.getActivity().getLayoutInflater();
+        this.inflater = fragment.getActivity().getLayoutInflater();
+        this.fragment = (BooksListFragment) fragment;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, child.title, Toast.LENGTH_SHORT).show();
+                fragment.openEditions(child);
             }
         });
         return convertView;

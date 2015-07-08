@@ -1,4 +1,4 @@
-package gs.zenodotus.back;
+package gs.zenodotus.back.commands;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -10,6 +10,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import gs.zenodotus.back.AuthorRow;
+import gs.zenodotus.back.DataFactory;
+import gs.zenodotus.back.GlobalDataProvider;
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.Work;
 import gs.zenodotus.front.BooksListFragment;

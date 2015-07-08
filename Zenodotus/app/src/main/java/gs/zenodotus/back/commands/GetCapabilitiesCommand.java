@@ -1,9 +1,12 @@
-package gs.zenodotus.back;
+package gs.zenodotus.back.commands;
 
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
+import gs.zenodotus.back.DataFactory;
+import gs.zenodotus.back.GlobalDataProvider;
+import gs.zenodotus.back.commands.Command;
 import gs.zenodotus.front.SplashScreenActivity;
 
 public class GetCapabilitiesCommand extends Command {

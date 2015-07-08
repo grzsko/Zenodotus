@@ -1,4 +1,4 @@
-package gs.zenodotus.back;
+package gs.zenodotus.back.commands;
 
 import android.os.AsyncTask;
 

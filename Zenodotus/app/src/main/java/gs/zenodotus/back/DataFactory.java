@@ -29,7 +29,7 @@ public abstract class DataFactory {
 
     public abstract void storeCapabilitiesInDb();
 
-    abstract List<Author> getAuthors(String name);
+    public abstract List<Author> getAuthors(String name);
 
     public abstract List<Work> getWorks(Author author);
 }

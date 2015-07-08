@@ -16,8 +16,8 @@ import java.util.List;
 import gs.zenodotus.R;
 import gs.zenodotus.back.AuthorRow;
 import gs.zenodotus.back.ExpandableListAdapter;
-import gs.zenodotus.back.GetAuthorsCommand;
-import gs.zenodotus.back.database.Author;
+import gs.zenodotus.back.commands.GetAuthorsCommand;
+import gs.zenodotus.back.database.Work;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -100,12 +100,16 @@ public class BooksListFragment extends Fragment {
         for (int i = 0; i < authors.size(); i++) {
             Log.d("Fragment", "Their names " + authors.get(i).author.name);
         }
-        ExpandableListView listView = (ExpandableListView) getActivity()
-                .findViewById(R.id
-                .listView);
-        ExpandableListAdapter adapter = new ExpandableListAdapter(this, authors);
+        ExpandableListView listView =
+                (ExpandableListView) getActivity().findViewById(R.id.listView);
+        ExpandableListAdapter adapter =
+                new ExpandableListAdapter(this, authors);
         listView.setAdapter(adapter);
         // TODO do u will always get an activity instance?
+    }
+
+    public void openEditions(Work work) {
+        mListener.runEditionsFragment(work);
     }
 
     /**
@@ -121,5 +125,7 @@ public class BooksListFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction();
+        public void runEditionsFragment(Work work);
     }
+
 }
