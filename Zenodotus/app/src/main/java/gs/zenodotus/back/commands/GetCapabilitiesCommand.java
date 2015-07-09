@@ -6,7 +6,6 @@ import java.lang.ref.WeakReference;
 
 import gs.zenodotus.back.DataFactory;
 import gs.zenodotus.back.GlobalDataProvider;
-import gs.zenodotus.back.commands.Command;
 import gs.zenodotus.front.SplashScreenActivity;
 
 public class GetCapabilitiesCommand extends Command {
@@ -14,8 +13,7 @@ public class GetCapabilitiesCommand extends Command {
 
     public GetCapabilitiesCommand(SplashScreenActivity splashScreenActivity) {
         Log.v("Zenodot", "create new get capabilities");
-        this.hostActivity =
-            new WeakReference<SplashScreenActivity>(splashScreenActivity);
+        this.hostActivity = new WeakReference<>(splashScreenActivity);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package gs.zenodotus.back;
 
+import android.util.Log;
+
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +30,13 @@ import gs.zenodotus.back.database.Work;
  * @author gskoraczynski
  */
 public class OnlineDataFactory extends DataFactory {
+
+    private String CTS_GETVALIDREFF_ADDR_PREF = "http://www.perseus.tufts" +
+            ".edu/hopper/CTS?request=GetValidReff&urn=";
+    private String CST_GETPASSAGE_ADDR_PREF =
+            "http://www.perseus.tufts.edu/hopper/CTS?request=GetPassage&urn=";
+    private String OLD_PERSEUS_GETPASSAGE_ADDR_PREF = "http://www.perseus" +
+            ".tufts.edu/hopper/xmlchunk?doc=Perseus:text:";
 
     @Override
     protected InputStream getXmlFromPerseus(String urlString)
@@ -59,6 +70,7 @@ public class OnlineDataFactory extends DataFactory {
             return null;
         }
     }
+
 
     private void loadDataToDb(List<Author> authors, List<Work> works,
                               List<EditionItem> editions) {
@@ -97,11 +109,44 @@ public class OnlineDataFactory extends DataFactory {
                     language = Language.fromAbbreviation(editionNode
                             .getAttribute(ConstantStringsContainer.LANG_STR));
                 }
+                boolean hasMappingInfo = false;
+                String mappingString = "";
+                String oldPerseusId;
+                XmlNode onlineNode = editionNode.getChild("online");
+                if (onlineNode != null) {
+                    oldPerseusId = onlineNode.getAttribute("docname");
+                    if (oldPerseusId.endsWith(
+                            ConstantStringsContainer.XML_EXTENSION_STR)) {
+                        oldPerseusId = oldPerseusId.substring(0,
+                                oldPerseusId.length() -
+                                        (ConstantStringsContainer
+                                                .XML_EXTENSION_STR)
+                                                .length());
+                    }
+                    XmlNode citationMappingNode =
+                            onlineNode.getChild("citationMapping");
+                    if (citationMappingNode != null) {
+                        hasMappingInfo = true;
+                        XmlNode citationNode =
+                                citationMappingNode.getChild("citation");
+                        while (citationNode != null) {
+                            mappingString +=
+                                    ":" + citationNode.getAttribute("label") +
+                                            "=%s";
+                            citationNode = citationNode.getChild("citation");
+                        }
+                        Log.d("parseHerEditions", "has NO citationMapping!");
+                    }
+                } else {
+                    oldPerseusId = "";
+                }
                 EditionItem edition = new EditionItem(editionNode
                         .getChild(ConstantStringsContainer.DESCRIPTION_STR)
                         .getText(),
                         editionNode.getChild(ConstantStringsContainer.LABEL_STR)
-                                .getText(), language, work);
+                                .getText(), language, work, editionNode
+                        .getAttribute(ConstantStringsContainer.URN_STR),
+                        hasMappingInfo, mappingString, oldPerseusId);
                 editions.add(edition);
             }
         }
@@ -116,8 +161,8 @@ public class OnlineDataFactory extends DataFactory {
                 Work work = new Work(
                         workNode.getChild(ConstantStringsContainer.TITLE_STR)
                                 .getText(), author,
-                        workNode.getAttribute("urn"), Language.fromAbbreviation(
-                        workNode.getAttribute(
+                        workNode.getAttribute(ConstantStringsContainer.URN_STR),
+                        Language.fromAbbreviation(workNode.getAttribute(
                                 ConstantStringsContainer.LANG_STR)));
                 works.add(work);
                 parseHerEditions(workNode, work, editions);
@@ -150,14 +195,68 @@ public class OnlineDataFactory extends DataFactory {
 
     @Override
     public List<Author> getAuthors(String name) {
-        return new Select().from(Author.class).where("name " + "LIKE ?",
-                "%" + name + "%").execute();
+        return new Select().from(Author.class)
+                .where("name " + "LIKE ?", "%" + name + "%").execute();
     }
 
     @Override
     public List<Work> getWorks(Author author) {
-        return new Select().from(Work.class).where("author = ?", author.getId
-                ()).execute();
+        return new Select().from(Work.class).where("author = ?", author.getId())
+                .execute();
+    }
+
+    @Override
+    public XmlNode getValidReffFromPerseus(String urn)
+            throws IOException, XmlPullParserException {
+        InputStream stream =
+                getXmlFromPerseus(CTS_GETVALIDREFF_ADDR_PREF + urn);
+        XmlParser parser = new XmlParser();
+        // TODO try catch these exceptions
+        return parser.parse(stream);
+    }
+
+    @Override
+    public String getTextChunk(String chunkUrn, EditionItem editionItem)
+            throws IOException {
+        String url;
+        if (editionItem.hasMappingInfo) {
+            url = createOldPerseusUrl(chunkUrn, editionItem);
+        } else {
+            url = createCTSGetPassageUrl(chunkUrn, editionItem);
+        }
+        XmlParser parser = new XmlParser();
+        XmlNode tree = null;
+        try {
+            tree = parser.parse(getXmlFromPerseus(url));
+            Log.d("getTextChunk", tree.getName());
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+            // TODO do here smth
+        }
+        return recreateHtmlFromParsedTree(tree);
+    }
+
+    private String recreateHtmlFromParsedTree(XmlNode tree) {
+        // TODO write here smth!
+        return "";
+    }
+
+    private String createOldPerseusUrl(String chunkUrn,
+                                       EditionItem editionItem) {
+        String url = OLD_PERSEUS_GETPASSAGE_ADDR_PREF + editionItem.xmlDocname;
+        String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
+        String[] sectionNumbers = editionUrnSuffix[1].split("\\.");
+        Log.d("createOldPerseusUrl", editionUrnSuffix[1]);
+        Log.d("createOldPerseusUrl", Arrays.toString(sectionNumbers));
+        Log.d("createOldPerseusUrl", editionItem.mappingInfo);
+        String textNumber = String.format(editionItem.mappingInfo, sectionNumbers);
+        // TODO write smth here!
+        return url + textNumber;
+    }
+
+    private String createCTSGetPassageUrl(String chunkUrn, EditionItem
+            editionItem) {
+        return CST_GETPASSAGE_ADDR_PREF + chunkUrn;
     }
 
     private class ConstantStringsContainer {
@@ -171,6 +270,7 @@ public class OnlineDataFactory extends DataFactory {
         static final String TITLE_STR = "title";
         static final String URN_STR = "urn";
         static final String EDITION_STR = "edition";
+        static final String XML_EXTENSION_STR = ".xml";
     }
 
 }

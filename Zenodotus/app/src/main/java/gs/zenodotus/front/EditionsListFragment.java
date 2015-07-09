@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.List;
@@ -18,16 +17,21 @@ import gs.zenodotus.back.database.EditionItem;
 
 public class EditionsListFragment extends ListFragment {
     EditionsListListener mCallback;
-    private List<EditionItem> items;
     int layout;
+    private List<EditionItem> items;
 
     public EditionsListFragment() {
         super();
     }
 
+    public void setNewAdapter(List<EditionItem> editionItems) {
+        insertNewEditionsList(editionItems);
+        setListAdapter(new EditionsListAdapter(getActivity(), layout, items));
+    }
+
     public void insertNewEditionsList(List<EditionItem> editionItems) {
         this.items = editionItems;
-        setListAdapter(new EditionsListAdapter(getActivity(), layout, items));
+        Log.d("EditionsListFragment", "inserting new list");
         // TODO should u do here something more?
     }
 
@@ -49,7 +53,7 @@ public class EditionsListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-    Log.d("EditionsListFragment", "onCreateView");
+        Log.d("EditionsListFragment", "onCreateView");
         // If activity recreated (such as from screen rotate), restore
         // the previous article selection set by onSaveInstanceState().
         // This is primarily necessary when in the two-pane layout.
@@ -66,6 +70,11 @@ public class EditionsListFragment extends ListFragment {
     public void onStart() {
         super.onStart();
         setListShown(true);
+        if (items != null) {
+            setListAdapter(
+                    new EditionsListAdapter(getActivity(), layout, items));
+            // TODO check on normal tablet if it works!
+        }
         // When in two-pane layout, set the listview to highlight the
         // selected list item
         // (We do this during onStart because at the point the listview is
@@ -92,14 +101,20 @@ public class EditionsListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        EditionItem dataFromPosition =
+                (EditionItem) getListView().getItemAtPosition(position);
+
+        Log.d("EditionsListFragment", "Will crash?");
+        Log.d("EditionsListFragment", dataFromPosition.label);
+
         // Notify the parent activity of selected item
-        mCallback.onEditionSelected(position);
+        mCallback.onEditionSelected(dataFromPosition);
 
         // Set the item as checked to be highlighted when in two-pane layout
         getListView().setItemChecked(position, true);
     }
 
     public interface EditionsListListener {
-        public void onEditionSelected(int position);
+        public void onEditionSelected(EditionItem item);
     }
 }

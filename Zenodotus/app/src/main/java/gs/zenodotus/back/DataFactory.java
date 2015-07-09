@@ -1,11 +1,14 @@
 package gs.zenodotus.back;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.List;
 
 import gs.zenodotus.back.database.Author;
+import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Work;
 
 /**
@@ -32,4 +35,10 @@ public abstract class DataFactory {
     public abstract List<Author> getAuthors(String name);
 
     public abstract List<Work> getWorks(Author author);
+
+    public abstract XmlNode getValidReffFromPerseus(String urn)
+            throws IOException, XmlPullParserException;
+
+    abstract String getTextChunk(String chunkUrn, EditionItem editionItem)
+            throws IOException;
 }

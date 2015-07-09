@@ -1,6 +1,7 @@
 package gs.zenodotus.front;
 
 import android.app.FragmentTransaction;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -16,7 +17,8 @@ import gs.zenodotus.back.database.Work;
 
 public class MainDisplayActivity extends FragmentActivity
         implements BooksListFragment.OnFragmentInteractionListener,
-        EditionsListFragment.EditionsListListener {
+        EditionsListFragment.EditionsListListener,
+        TextDisplayFragment.TextDisplayFragmentListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +89,13 @@ public class MainDisplayActivity extends FragmentActivity
                 (EditionsListFragment) getFragmentManager()
                         .findFragmentById(R.id.editions_list_fragment);
         Log.d("MainDisplayActivity", "getEditionsSuccess");
-//        EditionsListFragment editionsListFragment = null;
         if (editionsListFragment != null) {
             Log.d("MainDisplayActivity", "null");
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            editionsListFragment.insertNewEditionsList(editionItems);
-
+//            editionsListFragment.insertNewEditionsList(editionItems);
+            editionsListFragment.setNewAdapter(editionItems);
         } else {
             Log.d("MainDisplayActivity", "NOT null");
             // If the frag is not available, we're in the one-pane layout and
@@ -102,7 +103,6 @@ public class MainDisplayActivity extends FragmentActivity
 
             // Create fragment and give it an argument for the selected article
             EditionsListFragment newFragment = new EditionsListFragment();
-            newFragment.insertNewEditionsList(editionItems);
 //            Bundle args = new Bundle();
 //            args.putInt(A.ARG_POSITION, position);
 //            newFragment.setArguments(args);
@@ -118,12 +118,47 @@ public class MainDisplayActivity extends FragmentActivity
 
             // Commit the transaction
             transaction.commit();
+            newFragment.insertNewEditionsList(editionItems);
 
         }
     }
 
     @Override
-    public void onEditionSelected(int position) {
-        // TODO write here smth in the future
+    public void onEditionSelected(EditionItem item) {
+        TextDisplayFragment textDisplayFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentById(R.id.text_fragment);
+        if (textDisplayFragment != null) {
+            Log.d("MainDisplayActivity", "text_display_exists");
+            // If article frag is available, we're in two-pane layout...
+
+            // Call a method in the ArticleFragment to update its content
+            textDisplayFragment.showTextItem(item);
+
+        } else {
+            TextDisplayFragment newFragment = new TextDisplayFragment();
+////            Bundle args = new Bundle();
+////            args.putInt(A.ARG_POSITION, position);
+////            newFragment.setArguments(args);
+            FragmentTransaction transaction =
+                    getFragmentManager().beginTransaction();
+//
+
+//            // Replace whatever is in the fragments_container view with this
+//            // fragment,
+//            // and add the transaction to the back stack so the user can
+//            // navigate back
+            transaction.replace(R.id.fragments_container, newFragment);
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();
+            newFragment.setItemToShow(item);
+        }
+    }
+
+    @Override
+    public void onTextDisplayFragmentInteraction() {
+
     }
 }

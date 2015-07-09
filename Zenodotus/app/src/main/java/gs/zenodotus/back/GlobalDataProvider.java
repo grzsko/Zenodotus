@@ -68,4 +68,19 @@ public class GlobalDataProvider {
                 nowPlain);
         editor.commit();
     }
+
+    // Only for tests
+    public static void setOldDate(Context context) {
+        Calendar yearAgo = Calendar.getInstance();
+        yearAgo.add(Calendar.YEAR, -3);
+        long yearAgoPlain = yearAgo.getTimeInMillis();
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                context.getString(R.string.global_app_preference_key),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(
+                context.getString(R.string.preference_last_actualization_key),
+                yearAgoPlain);
+        editor.commit();
+    }
 }
