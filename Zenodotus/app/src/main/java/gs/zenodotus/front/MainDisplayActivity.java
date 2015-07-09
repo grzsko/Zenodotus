@@ -133,7 +133,7 @@ public class MainDisplayActivity extends FragmentActivity
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            textDisplayFragment.showTextItem(item);
+            textDisplayFragment.setItemToShow(item);
 
         } else {
             TextDisplayFragment newFragment = new TextDisplayFragment();

@@ -219,7 +219,8 @@ public class OnlineDataFactory extends DataFactory {
     public String getTextChunk(String chunkUrn, EditionItem editionItem)
             throws IOException {
         String url;
-        if (editionItem.hasMappingInfo) {
+        boolean askOldPerseusInstance = editionItem.hasMappingInfo;
+        if (askOldPerseusInstance) {
             url = createOldPerseusUrl(chunkUrn, editionItem);
         } else {
             url = createCTSGetPassageUrl(chunkUrn, editionItem);
@@ -233,12 +234,36 @@ public class OnlineDataFactory extends DataFactory {
             e.printStackTrace();
             // TODO do here smth
         }
+        XmlNode bodyOfAnswerNode;
+        if (askOldPerseusInstance) {
+            bodyOfAnswerNode = getBodyOfAnswerOldFormat(tree);
+        } else {
+            bodyOfAnswerNode = getBodyOfAnswerNewFormat(tree);
+        }
         return recreateHtmlFromParsedTree(tree);
     }
 
+    private XmlNode getBodyOfAnswerNewFormat(XmlNode tree) {
+        return tree.getChild("cts:reply").getChild("tei:TEI").getChild(
+                "tei:text").getChild("tei:body");
+    }
+
+    private XmlNode getBodyOfAnswerOldFormat(XmlNode tree) {
+        return tree.getChild("text").getChild("body");
+    }
+
     private String recreateHtmlFromParsedTree(XmlNode tree) {
-        // TODO write here smth!
-        return "";
+        String answer = "<" + tree.getName() + ">";
+        Log.d("recreateHtmlFromParsedTree", answer);
+        int numberOfChildren = tree.getChildrenSize();
+        if (numberOfChildren > 0) {
+            for (int i = 0; i < numberOfChildren; i++) {
+                answer += recreateHtmlFromParsedTree(tree.getChild(i));
+            }
+        } else {
+            answer += tree.getText();
+        }
+        return answer + "</" + tree.getName() + ">";
     }
 
     private String createOldPerseusUrl(String chunkUrn,

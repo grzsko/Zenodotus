@@ -1,6 +1,7 @@
 package gs.zenodotus.back;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -31,6 +32,7 @@ public class GetTextCommand extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
+        Log.d("GetTextCommand", s);
         hostFragment.get().onGetTextSuccess(s);
     }
 }

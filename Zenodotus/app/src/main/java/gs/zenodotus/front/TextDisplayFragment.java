@@ -2,10 +2,13 @@ package gs.zenodotus.front;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import java.util.List;
 
@@ -57,7 +60,7 @@ public class TextDisplayFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        showTextItem();
+        fetchValidRefsIfItemExists();
     }
 
     @Override
@@ -66,21 +69,21 @@ public class TextDisplayFragment extends Fragment {
         mListener = null;
     }
 
-    private void showTextItem() {
+    public void fetchValidRefsIfItemExists() {
         if (item != null) {
-            showTextItem(this.item);
+            fetchValidRefsForItem(this.item);
         }
-
     }
 
-    public void showTextItem(EditionItem item) {
-        setItemToShow(item);
+    private void fetchValidRefsForItem(EditionItem item) {
         GetValidReffCommand command = new GetValidReffCommand(this);
         command.execute(item.urn);
     }
 
     public void setItemToShow(EditionItem item) {
         this.item = item;
+        fetchValidRefsIfItemExists();
+        // TODO should be here fetchValidRefsIfItemExists?
     }
 
     public void onGetValidReffsSuccess(List<String> textChunks) {
@@ -90,6 +93,7 @@ public class TextDisplayFragment extends Fragment {
     }
 
     private void showText(int position) {
+        actualText = position;
         if (texts[position] == null) {
             GetTextCommand command = new GetTextCommand(item, this);
             command.execute(textChunksUrns.get(position));
@@ -99,11 +103,26 @@ public class TextDisplayFragment extends Fragment {
     }
 
     private void putTextIntoView(int position) {
-        // TODO write here smth!
+        String html = getFullHtml(texts[position]);
+        WebView webView = (WebView) getView().findViewById(R.id.webview);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
+        WebSettings settings = webView.getSettings();
+        settings.setDefaultTextEncodingName("utf-8");
+
+        webView.loadData(html, "text/html; charset=utf-8\"", null);
+    }
+
+    private String getFullHtml(String body) {
+        String html = "<html><head></head>";
+        html += body;
+        return html;
     }
 
     public void onGetTextSuccess(String textChunk) {
-        // TODO publish it!
+        texts[actualText] = textChunk;
+        putTextIntoView(actualText);
     }
 
     public interface TextDisplayFragmentListener {
