@@ -5,18 +5,21 @@ import android.util.Log;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
+import com.activeandroid.util.IOUtils;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
@@ -227,20 +230,25 @@ public class OnlineDataFactory extends DataFactory {
         }
         XmlParser parser = new XmlParser();
         XmlNode tree = null;
-        try {
-            tree = parser.parse(getXmlFromPerseus(url));
-            Log.d("getTextChunk", tree.getName());
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            // TODO do here smth
-        }
-        XmlNode bodyOfAnswerNode;
+        InputStream inputStream = getXmlFromPerseus(url);
+        String inputStreamString = new Scanner(inputStream,"UTF-8").useDelimiter
+                ("\\A").next();
+        Log.d("getTextChunk", inputStreamString);
+//        try {
+//            tree = parser.parse(getXmlFromPerseus(url));
+//            Log.d("getTextChunk", tree.getName());
+//        } catch (XmlPullParserException e) {
+//            e.printStackTrace();
+//            // TODO do here smth
+//        }
+        String bodyOfAnswerNode;
         if (askOldPerseusInstance) {
-            bodyOfAnswerNode = getBodyOfAnswerOldFormat(tree);
+            bodyOfAnswerNode = getBodyOfAnswerOldFormat(inputStreamString);
         } else {
-            bodyOfAnswerNode = getBodyOfAnswerNewFormat(tree);
+//            bodyOfAnswerNode = getBodyOfAnswerNewFormat(tree);
+            bodyOfAnswerNode = "";
         }
-        return recreateHtmlFromParsedTree(tree);
+        return bodyOfAnswerNode;
     }
 
     private XmlNode getBodyOfAnswerNewFormat(XmlNode tree) {
@@ -248,13 +256,14 @@ public class OnlineDataFactory extends DataFactory {
                 "tei:text").getChild("tei:body");
     }
 
-    private XmlNode getBodyOfAnswerOldFormat(XmlNode tree) {
-        return tree.getChild("text").getChild("body");
+    private String getBodyOfAnswerOldFormat(String tree) {
+        Log.d("getBodyOfAnswerOld", tree.split("<body>")[1]);
+        return tree.split("<body>")[1].split("</body>")[0];
+
     }
 
     private String recreateHtmlFromParsedTree(XmlNode tree) {
         String answer = "<" + tree.getName() + ">";
-        Log.d("recreateHtmlFromParsedTree", answer);
         int numberOfChildren = tree.getChildrenSize();
         if (numberOfChildren > 0) {
             for (int i = 0; i < numberOfChildren; i++) {
