@@ -1,7 +1,6 @@
 package gs.zenodotus.front;
 
 import android.app.FragmentTransaction;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -74,11 +73,6 @@ public class MainDisplayActivity extends FragmentActivity
     }
 
     @Override
-    public void onFragmentInteraction() {
-
-    }
-
-    @Override
     public void runEditionsFragment(Work work) {
         GetEditionsCommand getEditionsCommand = new GetEditionsCommand(this);
         getEditionsCommand.execute(work);
@@ -90,29 +84,20 @@ public class MainDisplayActivity extends FragmentActivity
                         .findFragmentById(R.id.editions_list_fragment);
         Log.d("MainDisplayActivity", "getEditionsSuccess");
         if (editionsListFragment != null) {
-            Log.d("MainDisplayActivity", "null");
+            Log.d("MainDisplayActivity", "NOT null");
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
 //            editionsListFragment.insertNewEditionsList(editionItems);
             editionsListFragment.setNewAdapter(editionItems);
         } else {
-            Log.d("MainDisplayActivity", "NOT null");
-            // If the frag is not available, we're in the one-pane layout and
-            // must swap frags...
+            Log.d("MainDisplayActivity", "null");
 
-            // Create fragment and give it an argument for the selected article
             EditionsListFragment newFragment = new EditionsListFragment();
-//            Bundle args = new Bundle();
-//            args.putInt(A.ARG_POSITION, position);
-//            newFragment.setArguments(args);
+
             FragmentTransaction transaction =
                     getFragmentManager().beginTransaction();
 
-            // Replace whatever is in the fragments_container view with this
-            // fragment,
-            // and add the transaction to the back stack so the user can
-            // navigate back
             transaction.replace(R.id.fragments_container, newFragment);
             transaction.addToBackStack(null);
 
@@ -137,21 +122,12 @@ public class MainDisplayActivity extends FragmentActivity
 
         } else {
             TextDisplayFragment newFragment = new TextDisplayFragment();
-////            Bundle args = new Bundle();
-////            args.putInt(A.ARG_POSITION, position);
-////            newFragment.setArguments(args);
+
             FragmentTransaction transaction =
                     getFragmentManager().beginTransaction();
-//
 
-//            // Replace whatever is in the fragments_container view with this
-//            // fragment,
-//            // and add the transaction to the back stack so the user can
-//            // navigate back
             transaction.replace(R.id.fragments_container, newFragment);
             transaction.addToBackStack(null);
-
-            // Commit the transaction
             transaction.commit();
             newFragment.setItemToShow(item);
         }
