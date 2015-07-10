@@ -1,6 +1,11 @@
 # Zenodotus
 An Android client app for Perseus Hopper.
 
+Now it is capable of fetching and displaying texts served by Perseus Hopper
+server. Stay tune for new features!
+
+Pull requests are welcomed.
+
 Licence
 -------
 
