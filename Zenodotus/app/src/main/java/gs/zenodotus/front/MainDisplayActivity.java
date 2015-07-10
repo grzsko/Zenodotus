@@ -24,26 +24,14 @@ public class MainDisplayActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_display);
 
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
         if (findViewById(R.id.fragments_container) != null) {
 
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
             if (savedInstanceState != null) {
                 return;
             }
-
-            // Create a new Fragment to be placed in the activity layout
             BooksListFragment firstFragment = new BooksListFragment();
-
-            // In case this activity was started with special instructions
-            // from an
-            // Intent, pass the Intent's extras to the fragment as arguments
             firstFragment.setArguments(getIntent().getExtras());
 
-            // Add the fragment to the 'fragment_container' FrameLayout
             getFragmentManager().beginTransaction()
                     .add(R.id.fragments_container, firstFragment).commit();
         }
@@ -59,12 +47,8 @@ public class MainDisplayActivity extends FragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -85,9 +69,6 @@ public class MainDisplayActivity extends FragmentActivity
         Log.d("MainDisplayActivity", "getEditionsSuccess");
         if (editionsListFragment != null) {
             Log.d("MainDisplayActivity", "NOT null");
-            // If article frag is available, we're in two-pane layout...
-
-            // Call a method in the ArticleFragment to update its content
 //            editionsListFragment.insertNewEditionsList(editionItems);
             editionsListFragment.setNewAdapter(editionItems);
         } else {
@@ -101,7 +82,6 @@ public class MainDisplayActivity extends FragmentActivity
             transaction.replace(R.id.fragments_container, newFragment);
             transaction.addToBackStack(null);
 
-            // Commit the transaction
             transaction.commit();
             newFragment.insertNewEditionsList(editionItems);
 
@@ -115,9 +95,6 @@ public class MainDisplayActivity extends FragmentActivity
                         .findFragmentById(R.id.text_fragment);
         if (textDisplayFragment != null) {
             Log.d("MainDisplayActivity", "text_display_exists");
-            // If article frag is available, we're in two-pane layout...
-
-            // Call a method in the ArticleFragment to update its content
             textDisplayFragment.setItemToShow(item);
 
         } else {
@@ -128,6 +105,7 @@ public class MainDisplayActivity extends FragmentActivity
 
             transaction.replace(R.id.fragments_container, newFragment);
             transaction.addToBackStack(null);
+            // TODO correct pressing back button
             transaction.commit();
             newFragment.setItemToShow(item);
         }
@@ -135,6 +113,5 @@ public class MainDisplayActivity extends FragmentActivity
 
     @Override
     public void onTextDisplayFragmentInteraction() {
-
     }
 }

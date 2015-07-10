@@ -26,13 +26,13 @@ public class EditionsListFragment extends ListFragment {
 
     public void setNewAdapter(List<EditionItem> editionItems) {
         insertNewEditionsList(editionItems);
-        setListAdapter(new EditionsListAdapter(getActivity(), layout, items));
+        setListAdapter(
+                new EditionsListAdapter((MainDisplayActivity) mCallback, layout,
+                        items));
     }
 
     public void insertNewEditionsList(List<EditionItem> editionItems) {
         this.items = editionItems;
-        Log.d("EditionsListFragment", "inserting new list");
-        // TODO should u do here something more?
     }
 
     @Override
@@ -40,14 +40,7 @@ public class EditionsListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         this.layout = R.layout.editions_row;
-
-
-        // Create an array adapter for the list view, using the Ipsum
-        // headlines array
-
-//        setListAdapter(new EditionsListAdapter(getActivity(), layout, items));
-
-        Log.d("MaFragmentOnCreate", "After creating adapter");
+        setRetainInstance(true);
     }
 
     @Override
@@ -60,9 +53,11 @@ public class EditionsListFragment extends ListFragment {
 //        if (savedInstanceState != null) {
 //            mCurrentPosition = savedInstanceState.getInt(ARG_POSITION);
 //        }
-//
-//        // Inflate the layout for this fragment
-        // TODO uncomment this fragment!
+        if (items != null) {
+            setListAdapter(
+                    new EditionsListAdapter((MainDisplayActivity) mCallback,
+                            layout, items));
+        }
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -89,8 +84,6 @@ public class EditionsListFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception.
         try {
             mCallback = (EditionsListListener) activity;
         } catch (ClassCastException e) {
@@ -103,9 +96,6 @@ public class EditionsListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         EditionItem dataFromPosition =
                 (EditionItem) getListView().getItemAtPosition(position);
-
-        Log.d("EditionsListFragment", "Will crash?");
-        Log.d("EditionsListFragment", dataFromPosition.label);
 
         // Notify the parent activity of selected item
         mCallback.onEditionSelected(dataFromPosition);

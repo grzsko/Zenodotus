@@ -26,6 +26,7 @@ public class GetValidReffCommand extends AsyncTask<String, Void, List<String>> {
     protected List<String> doInBackground(String... params) {
         DataFactory dataFactory = GlobalDataProvider.getFactory();
         XmlNode urnsWrapped = null;
+        Log.d("GetValidReff", params[0]);
         try {
             urnsWrapped = dataFactory.getValidReffFromPerseus(params[0]);
         } catch (IOException e) {
