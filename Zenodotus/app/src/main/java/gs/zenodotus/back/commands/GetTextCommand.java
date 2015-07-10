@@ -1,4 +1,4 @@
-package gs.zenodotus.back;
+package gs.zenodotus.back.commands;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -6,6 +6,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import gs.zenodotus.back.DataFactory;
+import gs.zenodotus.back.GlobalDataProvider;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.front.TextDisplayFragment;
 

@@ -1,4 +1,4 @@
-package gs.zenodotus.back;
+package gs.zenodotus.back.xml;
 
 
 import android.util.Log;
@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import gs.zenodotus.back.xml.XmlNode;
 
 public class XmlParser {
     private static final String ns = null;

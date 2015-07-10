@@ -1,31 +1,43 @@
 package gs.zenodotus.back.commands;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 import gs.zenodotus.back.DataFactory;
 import gs.zenodotus.back.GlobalDataProvider;
-import gs.zenodotus.front.SplashScreenActivity;
+import gs.zenodotus.front.TaskFragment;
 
-public class GetCapabilitiesCommand extends Command {
-    private WeakReference<SplashScreenActivity> hostActivity;
+public class GetCapabilitiesCommand extends AsyncTask<Void, Void, Void> {
+    public static final int LOST_CONNECTION = 1;
+    public static final int BAD_ANSWER = 2;
+    private TaskFragment hostFragment;
+    private int result = 0;
 
-    public GetCapabilitiesCommand(SplashScreenActivity splashScreenActivity) {
+    public GetCapabilitiesCommand(TaskFragment taskFragment) {
         Log.v("Zenodot", "create new get capabilities");
-        this.hostActivity = new WeakReference<>(splashScreenActivity);
+        this.hostFragment = taskFragment;
     }
 
     @Override
     protected Void doInBackground(Void... arg0) {
-        if (GlobalDataProvider.areCapabillitiesActual(hostActivity.get())) {
+        if (GlobalDataProvider.areCapabillitiesActual(hostFragment.getActivity())) {
             return null;
         } else {
             DataFactory dataFactory = GlobalDataProvider.getFactory();
-//            Log.v("XmlNode", parsedCapabilities.getName());
-            dataFactory.storeCapabilitiesInDb();
-            // TODO maybe actualization should moved somewhere else?
-            GlobalDataProvider.setCapabilitiesActual(hostActivity.get());
+            try {
+                dataFactory.storeCapabilitiesInDb();
+            } catch (IOException e) {
+                e.printStackTrace();
+                this.result = LOST_CONNECTION;
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+                this.result = BAD_ANSWER;
+            }
+            GlobalDataProvider.setCapabilitiesActual(hostFragment.getActivity());
             return null;
         }
     }
@@ -33,6 +45,10 @@ public class GetCapabilitiesCommand extends Command {
     @Override
     protected void onPostExecute(Void arg) {
         super.onPostExecute(arg);
-        this.hostActivity.get().onGetCapabilitiesSuccess();
+        if (result == 0) {
+            this.hostFragment.getTaskCallbacks().onGetCapabilitiesSuccess();
+        } else {
+            this.hostFragment.getTaskCallbacks().onGetCapabilitiesFail(result);
+        }
     }
 }

@@ -2,13 +2,11 @@ package gs.zenodotus.back;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import gs.zenodotus.R;
-import gs.zenodotus.front.SplashScreenActivity;
 
 //import java.util.Calendar;
 
@@ -17,7 +15,9 @@ import gs.zenodotus.front.SplashScreenActivity;
  * There is no instance of this class, all methods are static.
  */
 public class GlobalDataProvider {
-    /** Instance of one data factory in all app. */
+    /**
+     * Instance of one data factory in all app.
+     */
     private static OnlineDataFactory factory;
 
 //    private static Calendar lastCapabilitiesActualizationTime;
@@ -49,7 +49,6 @@ public class GlobalDataProvider {
                 context.getString(R.string.preference_last_actualization_key),
                 0);
         Date storedTimeDate = new Date(storedTimePlain);
-        Log.v("Zenodot", "" + storedTimePlain);
         Calendar yearAgo = Calendar.getInstance();
         yearAgo.add(Calendar.YEAR, -1);
         Date yearAgoTimeDate = yearAgo.getTime();

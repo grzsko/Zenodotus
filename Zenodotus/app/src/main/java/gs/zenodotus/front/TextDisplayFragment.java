@@ -13,7 +13,7 @@ import android.webkit.WebView;
 import java.util.List;
 
 import gs.zenodotus.R;
-import gs.zenodotus.back.GetTextCommand;
+import gs.zenodotus.back.commands.GetTextCommand;
 import gs.zenodotus.back.commands.GetValidReffCommand;
 import gs.zenodotus.back.database.EditionItem;
 

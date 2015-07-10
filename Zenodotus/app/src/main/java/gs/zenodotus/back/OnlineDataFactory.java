@@ -5,17 +5,14 @@ import android.util.Log;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
-import com.activeandroid.util.IOUtils;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +22,8 @@ import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Language;
 import gs.zenodotus.back.database.Work;
+import gs.zenodotus.back.xml.XmlNode;
+import gs.zenodotus.back.xml.XmlParser;
 
 /**
  * Factory for online communication with Perseus server or working on "real"
@@ -34,6 +33,8 @@ import gs.zenodotus.back.database.Work;
  */
 public class OnlineDataFactory extends DataFactory {
 
+    private String CTS_GECAPABILITIES_ADDR = "http://www.perseus.tufts" +
+            ".edu/hopper/CTS?request=GetCapabilities";
     private String CTS_GETVALIDREFF_ADDR_PREF = "http://www.perseus.tufts" +
             ".edu/hopper/CTS?request=GetValidReff&urn=";
     private String CST_GETPASSAGE_ADDR_PREF =
@@ -52,28 +53,15 @@ public class OnlineDataFactory extends DataFactory {
     }
 
     @Override
-    protected XmlNode getCapabilitiesFromPerseus() {
-        // TODO check if internet connection is available
-        // https://developer.android
-        // .com/training/basics/network-ops/connecting.html#connection
-        String url = "http://www.perseus.tufts" +
-                ".edu/hopper/CTS?request=GetCapabilities";
+    protected XmlNode getCapabilitiesFromPerseus()
+            throws IOException, XmlPullParserException {
+        String url = CTS_GECAPABILITIES_ADDR;
         InputStream xmlStream;
-        try {
-            xmlStream = this.getXmlFromPerseus(url);
-            XmlParser parser = new XmlParser();
-            XmlNode returnTree = parser.parse(xmlStream);
-            return returnTree;
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO move handling these exceptions somewhere
-            return null;
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+        xmlStream = this.getXmlFromPerseus(url);
+        XmlParser parser = new XmlParser();
+        return parser.parse(xmlStream);
 
+    }
 
     private void loadDataToDb(List<Author> authors, List<Work> works,
                               List<EditionItem> editions) {
@@ -126,17 +114,18 @@ public class OnlineDataFactory extends DataFactory {
                                                 .XML_EXTENSION_STR)
                                                 .length());
                     }
-                    XmlNode citationMappingNode =
-                            onlineNode.getChild("citationMapping");
+                    XmlNode citationMappingNode = onlineNode
+                            .getChild(ConstantStringsContainer.CIT_MAPPING_STR);
                     if (citationMappingNode != null) {
                         hasMappingInfo = true;
-                        XmlNode citationNode =
-                                citationMappingNode.getChild("citation");
+                        XmlNode citationNode = citationMappingNode.getChild(
+                                ConstantStringsContainer.CITATION_STR);
                         while (citationNode != null) {
                             mappingString +=
                                     ":" + citationNode.getAttribute("label") +
                                             "=%s";
-                            citationNode = citationNode.getChild("citation");
+                            citationNode = citationNode.getChild(
+                                    ConstantStringsContainer.CITATION_STR);
                         }
                         Log.d("parseHerEditions", "has NO citationMapping!");
                     }
@@ -173,7 +162,8 @@ public class OnlineDataFactory extends DataFactory {
         }
     }
 
-    public void storeCapabilitiesInDb() {
+    public void storeCapabilitiesInDb()
+            throws IOException, XmlPullParserException {
         XmlNode parsedCapabilities = this.getCapabilitiesFromPerseus();
         int numberOfTextgroups = parsedCapabilities.getChildrenSize();
         List<Author> authors = new LinkedList<>();
@@ -228,11 +218,9 @@ public class OnlineDataFactory extends DataFactory {
         } else {
             url = createCTSGetPassageUrl(chunkUrn, editionItem);
         }
-        XmlParser parser = new XmlParser();
-        XmlNode tree = null;
         InputStream inputStream = getXmlFromPerseus(url);
-        String inputStreamString = new Scanner(inputStream,"UTF-8").useDelimiter
-                ("\\A").next();
+        String inputStreamString =
+                new Scanner(inputStream, "UTF-8").useDelimiter("\\A").next();
         Log.d("getTextChunk", inputStreamString);
 //        try {
 //            tree = parser.parse(getXmlFromPerseus(url));
@@ -252,8 +240,8 @@ public class OnlineDataFactory extends DataFactory {
     }
 
     private XmlNode getBodyOfAnswerNewFormat(XmlNode tree) {
-        return tree.getChild("cts:reply").getChild("tei:TEI").getChild(
-                "tei:text").getChild("tei:body");
+        return tree.getChild("cts:reply").getChild("tei:TEI")
+                .getChild("tei:text").getChild("tei:body");
     }
 
     private String getBodyOfAnswerOldFormat(String tree) {
@@ -283,13 +271,14 @@ public class OnlineDataFactory extends DataFactory {
         Log.d("createOldPerseusUrl", editionUrnSuffix[1]);
         Log.d("createOldPerseusUrl", Arrays.toString(sectionNumbers));
         Log.d("createOldPerseusUrl", editionItem.mappingInfo);
-        String textNumber = String.format(editionItem.mappingInfo, sectionNumbers);
+        String textNumber =
+                String.format(editionItem.mappingInfo, sectionNumbers);
         // TODO write smth here!
         return url + textNumber;
     }
 
-    private String createCTSGetPassageUrl(String chunkUrn, EditionItem
-            editionItem) {
+    private String createCTSGetPassageUrl(String chunkUrn,
+                                          EditionItem editionItem) {
         return CST_GETPASSAGE_ADDR_PREF + chunkUrn;
     }
 
@@ -305,6 +294,7 @@ public class OnlineDataFactory extends DataFactory {
         static final String URN_STR = "urn";
         static final String EDITION_STR = "edition";
         static final String XML_EXTENSION_STR = ".xml";
+        static final String CITATION_STR = "citation";
+        static final String CIT_MAPPING_STR = CITATION_STR + "Mapping";
     }
-
 }

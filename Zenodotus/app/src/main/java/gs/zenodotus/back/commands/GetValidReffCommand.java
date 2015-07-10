@@ -12,7 +12,7 @@ import java.util.List;
 
 import gs.zenodotus.back.DataFactory;
 import gs.zenodotus.back.GlobalDataProvider;
-import gs.zenodotus.back.XmlNode;
+import gs.zenodotus.back.xml.XmlNode;
 import gs.zenodotus.front.TextDisplayFragment;
 
 public class GetValidReffCommand extends AsyncTask<String, Void, List<String>> {

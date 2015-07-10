@@ -4,33 +4,35 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Work;
+import gs.zenodotus.back.xml.XmlNode;
 
 /**
  * Factory that provides data fetched online from Perseus or cached in db.
- *
+ * <p/>
  * Possible classes that extend this abstract class: {@link gs.zenodotus.back
  * .OnlineDataFactory}. In future possibly another offline,
  * test factory will be created.
  *
  * @author grzsko
- *
  */
 public abstract class DataFactory {
     protected XmlNode parseXml(InputStream inputStream) {
         return null;
     }
+
     protected abstract InputStream getXmlFromPerseus(String url)
             throws IOException;
 
-    protected abstract XmlNode getCapabilitiesFromPerseus();
+    protected abstract XmlNode getCapabilitiesFromPerseus()
+            throws IOException, XmlPullParserException;
 
-    public abstract void storeCapabilitiesInDb();
+    public abstract void storeCapabilitiesInDb()
+            throws IOException, XmlPullParserException;
 
     public abstract List<Author> getAuthors(String name);
 
@@ -39,6 +41,7 @@ public abstract class DataFactory {
     public abstract XmlNode getValidReffFromPerseus(String urn)
             throws IOException, XmlPullParserException;
 
-    abstract String getTextChunk(String chunkUrn, EditionItem editionItem)
+    public abstract String getTextChunk(String chunkUrn,
+                                        EditionItem editionItem)
             throws IOException;
 }
