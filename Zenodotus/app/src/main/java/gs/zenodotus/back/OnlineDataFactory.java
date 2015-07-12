@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -216,7 +217,14 @@ public class OnlineDataFactory extends DataFactory {
         boolean askOldPerseusInstance = editionItem.hasMappingInfo &&
                 chunkUrn.startsWith(editionItem.work.urn);
         if (askOldPerseusInstance) {
-            url = createOldPerseusUrl(chunkUrn, editionItem);
+            try {
+                url = createOldPerseusUrl(chunkUrn, editionItem);
+            } catch (IllegalArgumentException e) {
+                // unfortunately there is another bug in CTS and gave us not
+                // appropriate answer
+                askOldPerseusInstance = false;
+                url = createCTSGetPassageUrl(chunkUrn, editionItem);
+            }
         } else {
             url = createCTSGetPassageUrl(chunkUrn, editionItem);
         }
