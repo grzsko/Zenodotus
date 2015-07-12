@@ -32,7 +32,8 @@ public abstract class DataFactory {
             throws IOException, XmlPullParserException;
 
     public abstract void storeCapabilitiesInDb()
-            throws IOException, XmlPullParserException;
+            throws IOException, XmlPullParserException,
+            XmlNode.XmlNodeException;
 
     public abstract List<Author> getAuthors(String name);
 

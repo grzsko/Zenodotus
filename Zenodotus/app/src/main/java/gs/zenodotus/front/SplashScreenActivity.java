@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import gs.zenodotus.R;
+import gs.zenodotus.back.GlobalDataProvider;
 import gs.zenodotus.back.commands.GetCapabilitiesCommand;
 
 public class SplashScreenActivity extends Activity

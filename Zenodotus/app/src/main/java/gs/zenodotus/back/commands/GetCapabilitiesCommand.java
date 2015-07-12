@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import gs.zenodotus.back.DataFactory;
 import gs.zenodotus.back.GlobalDataProvider;
+import gs.zenodotus.back.xml.XmlNode;
 import gs.zenodotus.front.TaskFragment;
 
 public class GetCapabilitiesCommand extends AsyncTask<Void, Void, Void> {
@@ -33,6 +34,9 @@ public class GetCapabilitiesCommand extends AsyncTask<Void, Void, Void> {
             } catch (IOException e) {
                 e.printStackTrace();
                 this.result = LOST_CONNECTION;
+            } catch (XmlNode.XmlNodeException e) {
+                e.printStackTrace();
+                this.result = BAD_ANSWER;
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
                 this.result = BAD_ANSWER;

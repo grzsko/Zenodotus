@@ -107,6 +107,7 @@ public class MainDisplayActivity extends FragmentActivity
             transaction.addToBackStack(null);
             // TODO correct pressing back button
             transaction.commit();
+            Log.d("MaindisplayActivity", "before new set item to show");
             newFragment.setItemToShow(item);
         }
     }

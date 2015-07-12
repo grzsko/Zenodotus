@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -83,7 +82,8 @@ public class OnlineDataFactory extends DataFactory {
     }
 
     private void parseHerEditions(XmlNode workNode, Work work,
-                                  List<EditionItem> editions) {
+                                  List<EditionItem> editions)
+            throws XmlNode.XmlNodeException {
         int numberOfItsEditions = workNode.getChildrenSize();
         for (int k = 0; k < numberOfItsEditions; k++) {
             XmlNode editionNode = workNode.getChild(k);
@@ -145,7 +145,8 @@ public class OnlineDataFactory extends DataFactory {
     }
 
     private void parseHerWorks(XmlNode authorNode, Author author,
-                               List<Work> works, List<EditionItem> editions) {
+                               List<Work> works, List<EditionItem> editions)
+            throws XmlNode.XmlNodeException {
         int numberOfHerWorks = authorNode.getChildrenSize();
         for (int j = 0; j < numberOfHerWorks; j++) {
             XmlNode workNode = authorNode.getChild(j);
@@ -163,7 +164,8 @@ public class OnlineDataFactory extends DataFactory {
     }
 
     public void storeCapabilitiesInDb()
-            throws IOException, XmlPullParserException {
+            throws IOException, XmlPullParserException,
+            XmlNode.XmlNodeException {
         XmlNode parsedCapabilities = this.getCapabilitiesFromPerseus();
         int numberOfTextgroups = parsedCapabilities.getChildrenSize();
         List<Author> authors = new LinkedList<>();
@@ -204,7 +206,6 @@ public class OnlineDataFactory extends DataFactory {
         InputStream stream =
                 getXmlFromPerseus(CTS_GETVALIDREFF_ADDR_PREF + urn);
         XmlParser parser = new XmlParser();
-        // TODO try catch these exceptions
         return parser.parse(stream);
     }
 
@@ -212,36 +213,30 @@ public class OnlineDataFactory extends DataFactory {
     public String getTextChunk(String chunkUrn, EditionItem editionItem)
             throws IOException {
         String url;
-        boolean askOldPerseusInstance = editionItem.hasMappingInfo;
+        boolean askOldPerseusInstance = editionItem.hasMappingInfo &&
+                chunkUrn.startsWith(editionItem.work.urn);
         if (askOldPerseusInstance) {
             url = createOldPerseusUrl(chunkUrn, editionItem);
         } else {
             url = createCTSGetPassageUrl(chunkUrn, editionItem);
         }
         InputStream inputStream = getXmlFromPerseus(url);
+        // Parsing xml with xml parsers is very difficult, because there is
+        // no demarcation between xml and html, so parsing like just sting
         String inputStreamString =
                 new Scanner(inputStream, "UTF-8").useDelimiter("\\A").next();
         Log.d("getTextChunk", inputStreamString);
-//        try {
-//            tree = parser.parse(getXmlFromPerseus(url));
-//            Log.d("getTextChunk", tree.getName());
-//        } catch (XmlPullParserException e) {
-//            e.printStackTrace();
-//            // TODO do here smth
-//        }
-        String bodyOfAnswerNode;
+        String bodyOfAnswer;
         if (askOldPerseusInstance) {
-            bodyOfAnswerNode = getBodyOfAnswerOldFormat(inputStreamString);
+            bodyOfAnswer = getBodyOfAnswerOldFormat(inputStreamString);
         } else {
-//            bodyOfAnswerNode = getBodyOfAnswerNewFormat(tree);
-            bodyOfAnswerNode = "";
+            bodyOfAnswer = getBodyOfAnswerNewFormat(inputStreamString);
         }
-        return bodyOfAnswerNode;
+        return bodyOfAnswer;
     }
 
-    private XmlNode getBodyOfAnswerNewFormat(XmlNode tree) {
-        return tree.getChild("cts:reply").getChild("tei:TEI")
-                .getChild("tei:text").getChild("tei:body");
+    private String getBodyOfAnswerNewFormat(String tree) {
+        return tree.split("<tei:body>")[1].split("</tei:body>")[0];
     }
 
     private String getBodyOfAnswerOldFormat(String tree) {
@@ -250,27 +245,24 @@ public class OnlineDataFactory extends DataFactory {
 
     }
 
-    private String recreateHtmlFromParsedTree(XmlNode tree) {
-        String answer = "<" + tree.getName() + ">";
-        int numberOfChildren = tree.getChildrenSize();
-        if (numberOfChildren > 0) {
-            for (int i = 0; i < numberOfChildren; i++) {
-                answer += recreateHtmlFromParsedTree(tree.getChild(i));
-            }
-        } else {
-            answer += tree.getText();
-        }
-        return answer + "</" + tree.getName() + ">";
-    }
+//    private String recreateHtmlFromParsedTree(XmlNode tree) {
+//        String answer = "<" + tree.getName() + ">";
+//        int numberOfChildren = tree.getChildrenSize();
+//        if (numberOfChildren > 0) {
+//            for (int i = 0; i < numberOfChildren; i++) {
+//                answer += recreateHtmlFromParsedTree(tree.getChild(i));
+//            }
+//        } else {
+//            answer += tree.getText();
+//        }
+//        return answer + "</" + tree.getName() + ">";
+//    }
 
     private String createOldPerseusUrl(String chunkUrn,
                                        EditionItem editionItem) {
         String url = OLD_PERSEUS_GETPASSAGE_ADDR_PREF + editionItem.xmlDocname;
         String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
         String[] sectionNumbers = editionUrnSuffix[1].split("\\.");
-        Log.d("createOldPerseusUrl", editionUrnSuffix[1]);
-        Log.d("createOldPerseusUrl", Arrays.toString(sectionNumbers));
-        Log.d("createOldPerseusUrl", editionItem.mappingInfo);
         String textNumber =
                 String.format(editionItem.mappingInfo, sectionNumbers);
         // TODO write smth here!

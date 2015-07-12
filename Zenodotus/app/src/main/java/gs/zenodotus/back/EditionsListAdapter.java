@@ -34,7 +34,6 @@ public class EditionsListAdapter extends ArrayAdapter<EditionItem> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d("Adapter", "begin of getview");
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(layoutResourceId, parent, false);
@@ -44,7 +43,6 @@ public class EditionsListAdapter extends ArrayAdapter<EditionItem> {
                 .item_description);
         descriptionTextView.setText(items.get(position).description);
         labelTextView.setText(items.get(position).label);
-        Log.d("Adapter", "end of getview");
         return rowView;
     }
 

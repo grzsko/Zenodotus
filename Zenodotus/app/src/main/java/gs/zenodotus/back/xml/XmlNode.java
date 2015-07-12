@@ -35,8 +35,8 @@ public class XmlNode {
     /**
      * Constructor for nodes with value and empty nodes
      *
-     * @param name tag name
-     * @param text tag value or empty string for empty nodes
+     * @param name       tag name
+     * @param text       tag value or empty string for empty nodes
      * @param attributes map with attributes stored in start tag of given node
      */
     public XmlNode(String name, String text,
@@ -124,8 +124,11 @@ public class XmlNode {
      *
      * @param childName name of child to be returned
      * @return child XmlNode
+     * @throws gs.zenodotus.back.xml.XmlNode.XmlNodeException when there is
+     *                                                        no child for
+     *                                                        given name
      */
-    public XmlNode getChild(String childName) {
+    public XmlNode getChild(String childName) throws XmlNodeException {
         try {
             int i = 0;
             while (i < children.size() &&
@@ -133,11 +136,10 @@ public class XmlNode {
                 i++;
             }
             return children.get(i);
-        } catch (Exception e) {
-            System.out
-                    .println("Call to non-existent child in getChild(String)!");
+        } catch (IndexOutOfBoundsException e) {
+            throw new XmlNodeException(
+                    "Call to non-existent child in getChild(String)!");
         }
-        return null;
     }
 
     /**
@@ -146,13 +148,13 @@ public class XmlNode {
      * @param index index of child to be returned
      * @return child XmlNode
      */
-    public XmlNode getChild(int index) {
+    public XmlNode getChild(int index) throws XmlNodeException {
         try {
             return children.get(index);
-        } catch (Exception e) {
-            System.out.println("Call to non-existent child in getChild(int)!");
+        } catch (IndexOutOfBoundsException e) {
+            throw new XmlNodeException(
+                    "Call to non-existent child in getChild(int)!");
         }
-        return null;
     }
 
     /**
@@ -163,11 +165,30 @@ public class XmlNode {
      * not exist
      */
     public String getAttribute(String attributeName) {
-       return attributes.get(attributeName);
+        return attributes.get(attributeName);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "XmlNode instance, name: " + getName() + " and text: " +
                 getText();
+    }
+
+    public class XmlNodeException extends Exception {
+        public XmlNodeException() {
+            super();
+        }
+
+        public XmlNodeException(String message) {
+            super(message);
+        }
+
+        public XmlNodeException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public XmlNodeException(Throwable cause) {
+            super(cause);
+        }
     }
 }
