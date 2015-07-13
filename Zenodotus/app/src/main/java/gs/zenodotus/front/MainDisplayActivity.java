@@ -49,9 +49,9 @@ public class MainDisplayActivity extends FragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -79,7 +79,8 @@ public class MainDisplayActivity extends FragmentActivity
             FragmentTransaction transaction =
                     getFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.fragments_container, newFragment);
+            transaction.replace(R.id.fragments_container, newFragment,
+                    "EDITIONS_LIST");
             transaction.addToBackStack(null);
 
             transaction.commit();
@@ -102,9 +103,13 @@ public class MainDisplayActivity extends FragmentActivity
 
             FragmentTransaction transaction =
                     getFragmentManager().beginTransaction();
-
-            transaction.replace(R.id.fragments_container, newFragment);
-            transaction.addToBackStack(null);
+            EditionsListFragment oldFragment = (EditionsListFragment)
+                    getFragmentManager().findFragmentByTag("EDITIONS_LIST");
+            transaction.hide(oldFragment);
+//            transaction.replace(R.id.fragments_container, newFragment);
+            transaction.add(R.id.fragments_container, newFragment,
+                    "TEXT_DISPLAY");
+//            transaction.addToBackStack(null);
             // TODO correct pressing back button
             transaction.commit();
             Log.d("MaindisplayActivity", "before new set item to show");
@@ -114,5 +119,19 @@ public class MainDisplayActivity extends FragmentActivity
 
     @Override
     public void onTextDisplayFragmentInteraction() {
+    }
+
+    @Override
+    public void onBackPressed() {
+        // TODO END THIS FUNCTION!
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        TextDisplayFragment oldFragment = (TextDisplayFragment)
+                getFragmentManager().findFragmentByTag("TEXT_DISPLAY");
+        transaction.remove(oldFragment);
+        EditionsListFragment newFragment = (EditionsListFragment) getFragmentManager()
+                .findFragmentByTag("EDITIONS_LIST");
+        transaction.show(newFragment);
+        transaction.commit();
     }
 }
