@@ -5,9 +5,19 @@
              tools:context="gs.zenodotus.front.TextDisplayFragment">
 
     <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/webview"
+              android:id="@+id/text_display_webview"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
+              android:visibility="gone"
         />
 
+    <com.github.rahatarmanahmed.cpv.CircularProgressView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/text_display_progress_view"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:cpv_animAutostart="true"
+        app:cpv_indeterminate="true"
+        app:cpv_color="@color/grey"/>
+<!-- TODO on large delay progress bar start-->
 </FrameLayout>

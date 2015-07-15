@@ -6,11 +6,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
+
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 
 import java.util.List;
 
@@ -33,6 +38,13 @@ public class TextDisplayFragment extends Fragment {
     private TextDisplayFragmentListener mListener;
     private List<String> textChunksUrns;
     private String[] texts;
+    private boolean textDisplayed = false;
+
+    private WebView webView;
+    private CircularProgressView circularProgressView;
+    private MenuItem buttonLeft;
+    private MenuItem buttonRight;
+    private MenuItem buttonJump;
 
     public TextDisplayFragment() {
         // Required empty public constructor
@@ -42,6 +54,7 @@ public class TextDisplayFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setRetainInstance(true);
+        this.setHasOptionsMenu(true);
     }
 
     @Override
@@ -49,21 +62,48 @@ public class TextDisplayFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text_display, container,
                 false);
+        webView = (WebView) view.findViewById(R.id.text_display_webview);
+        circularProgressView = (CircularProgressView) view
+                .findViewById(R.id.text_display_progress_view);
         if (actualText >= 0 && texts[actualText] != null) {
-            WebView webView = (WebView) view.findViewById(R.id.webview);
-            putTextIntoGivenView(webView);
-            setContentVisible(view);
+            putTextIntoGivenView();
+//            setContentVisible();
         }
         return view;
     }
 
-    private void setContentVisible() {
-        // TODO write here smth!
-//        setContentVisible(view);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main_display, menu);
+        buttonLeft = menu.findItem(R.id.action_left);
+        buttonRight = menu.findItem(R.id.action_right);
+        buttonJump = menu.findItem(R.id.action_jump);
+        updateButtonsVisibility();
     }
 
-    private void setContentVisible(View view) {
-        // TODO write here smth!
+    private void setContentVisible(boolean visible) {
+//        textDisplayed = true;
+
+        circularProgressView.setVisibility(visible ? View.GONE : View.VISIBLE);
+//        WebView webView = (WebView) getView().findViewById(R.id
+//                .text_display_webview);
+        webView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        textDisplayed = visible;
+        updateButtonsVisibility();
+    }
+
+    private void updateButtonsVisibility() {
+        buttonLeft.setEnabled(textDisplayed && actualText > 0);
+        buttonRight.setEnabled(
+                textDisplayed && actualText < textChunksUrns.size() - 1);
+        buttonJump.setEnabled(textDisplayed);
+
+    }
+
+    private void disableButtons() {
+        buttonLeft.setEnabled(false);
+        buttonRight.setEnabled(false);
+        buttonJump.setEnabled(false);
     }
 
     @Override
@@ -87,6 +127,42 @@ public class TextDisplayFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("onoptionsitemselected", "clicked!");
+        switch (item.getItemId()) {
+            case R.id.action_left:
+                goToPreviousPage();
+                return true;
+            case R.id.action_right:
+                goToNextPage();
+                return true;
+            case R.id.action_jump:
+                chosePage();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void chosePage() {
+        disableButtons();
+    }
+
+    private void jumpOnePage(int change) {
+        disableButtons();
+        setContentVisible(false);
+        showText(actualText + change);
+    }
+
+    private void goToNextPage() {
+        jumpOnePage(1);
+    }
+
+    private void goToPreviousPage() {
+        jumpOnePage(-1);
     }
 
     public void fetchValidRefsIfItemExists() {
@@ -120,12 +196,11 @@ public class TextDisplayFragment extends Fragment {
             GetTextCommand command = new GetTextCommand(item, this);
             command.execute(textChunksUrns.get(position));
         } else {
-            putTextIntoView();
-            setContentVisible();
+            putTextIntoGivenView();
         }
     }
 
-    private void putTextIntoGivenView(WebView webView) {
+    private void putTextIntoGivenView() {
         String html = getFullHtml(texts[actualText]);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
@@ -135,13 +210,16 @@ public class TextDisplayFragment extends Fragment {
         settings.setDefaultTextEncodingName("utf-8");
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html",
                 "UTF-8", null);
+        setContentVisible(true);
+        updateButtonsVisibility();
 //        webView.loadData(html, "text/html; charset=utf-8\"", null);
     }
 
-    private void putTextIntoView() {
-        WebView webView = (WebView) getView().findViewById(R.id.webview);
-        putTextIntoGivenView(webView);
-    }
+//    private void putTextIntoView() {
+////        WebView webView = (WebView) getView().findViewById(R.id
+////                .text_display_webview);
+//        putTextIntoGivenView(webView);
+//    }
 
     private String getFullHtml(String body) {
         String html = "<html><head><link rel=\"stylesheet\" " +
@@ -152,8 +230,7 @@ public class TextDisplayFragment extends Fragment {
 
     public void onGetTextSuccess(String textChunk) {
         texts[actualText] = textChunk;
-        putTextIntoView();
-        setContentVisible();
+        putTextIntoGivenView();
     }
 
     public void onGetTextFail(int errno) {
