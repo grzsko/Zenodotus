@@ -1,4 +1,24 @@
 l {
-    font-style: italic;
-    color: red;
+    display: block;
+}
+
+@font-face {
+    font-family: "My_greek_font";
+    src: url('SBL_grk.ttf');
+}
+
+div {
+    font-family: "My_greek_font";
+}
+
+note:before {
+    content: "(";
+}
+
+note:after {
+    content: ")";
+}
+
+l:before {
+    content: attr(n) " ";
 }
