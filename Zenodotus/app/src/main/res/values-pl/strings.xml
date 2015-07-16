@@ -10,4 +10,6 @@
     <string name="search_placeholder">Szukaj autora...</string>
     <string name="jump_title">Skocz do</string>
     <string name="cancel_button_text">Anuluj!</string>
+    <string name="error_note">Aplikacja miała problem z połączeniem się z serwerami Perseusza. Zapewne wynika to z niedoboru dostępu do Internetu w urządzeniu. Poszukaj brakującego Internetu, a następnie naciśnij przycisk Odśwież!.</string>
+    <string name="refresh_text">Odśwież!</string>
 </resources>

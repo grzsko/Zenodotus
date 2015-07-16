@@ -14,6 +14,7 @@ public class TaskFragment extends Fragment {
 
     private TaskCallbacks hostActivity;
     private GetCapabilitiesCommand command;
+    private boolean executing = false;
 
     public TaskCallbacks getTaskCallbacks() {
         return hostActivity;
@@ -44,6 +45,7 @@ public class TaskFragment extends Fragment {
 
         // Create and execute the background task.
         command = new GetCapabilitiesCommand(this);
+        executing = true;
         command.execute();
     }
 
@@ -56,6 +58,19 @@ public class TaskFragment extends Fragment {
         super.onDetach();
         hostActivity = null;
     }
+
+    public void retry() {
+        if (!executing) {
+            command = new GetCapabilitiesCommand(this);
+            executing = true;
+            command.execute();
+        }
+    }
+
+    public void stopExecuting() {
+        executing = false;
+    }
+
 
     /**
      * Callback interface through which the fragment will report the
