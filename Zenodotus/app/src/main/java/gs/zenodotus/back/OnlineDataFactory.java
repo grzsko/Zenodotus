@@ -13,11 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import gs.zenodotus.back.commands.PerseusProblemException;
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Language;
@@ -41,6 +41,12 @@ public class OnlineDataFactory extends DataFactory {
             "http://www.perseus.tufts.edu/hopper/CTS?request=GetPassage&urn=";
     private String OLD_PERSEUS_GETPASSAGE_ADDR_PREF = "http://www.perseus" +
             ".tufts.edu/hopper/xmlchunk?doc=Perseus:text:";
+
+    public static String[] getUrnSuffix(String chunkUrn,
+                                        EditionItem editionItem) {
+        String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
+        return editionUrnSuffix[1].split("\\.");
+    }
 
     @Override
     protected InputStream getXmlFromPerseus(String urlString)
@@ -104,8 +110,9 @@ public class OnlineDataFactory extends DataFactory {
                 boolean hasMappingInfo = false;
                 String mappingString = "";
                 String oldPerseusId;
-                XmlNode onlineNode = editionNode.getChild("online");
-                if (onlineNode != null) {
+                try {
+                    XmlNode onlineNode = editionNode.getChild("online");
+
                     oldPerseusId = onlineNode.getAttribute("docname");
                     if (oldPerseusId.endsWith(
                             ConstantStringsContainer.XML_EXTENSION_STR)) {
@@ -130,7 +137,7 @@ public class OnlineDataFactory extends DataFactory {
                         }
                         Log.d("parseHerEditions", "has NO citationMapping!");
                     }
-                } else {
+                } catch (XmlNode.XmlNodeException e) {
                     oldPerseusId = "";
                 }
                 EditionItem edition = new EditionItem(editionNode
@@ -212,7 +219,7 @@ public class OnlineDataFactory extends DataFactory {
 
     @Override
     public String getTextChunk(String chunkUrn, EditionItem editionItem)
-            throws IOException {
+            throws IOException, PerseusProblemException {
         String url;
         boolean askOldPerseusInstance = editionItem.hasMappingInfo &&
                 chunkUrn.startsWith(editionItem.work.urn);
@@ -243,14 +250,13 @@ public class OnlineDataFactory extends DataFactory {
         return bodyOfAnswer;
     }
 
-    private String getBodyOfAnswerNewFormat(String tree) {
-        return tree.split("<tei:body>")[1].split("</tei:body>")[0];
-    }
-
-    private String getBodyOfAnswerOldFormat(String tree) {
-        Log.d("getBodyOfAnswerOld", tree.split("<body>")[1]);
-        return tree.split("<body>")[1].split("</body>")[0];
-
+    private String getBodyOfAnswerNewFormat(String tree)
+            throws PerseusProblemException {
+        try {
+            return tree.split("<tei:body>")[1].split("</tei:body>")[0];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new PerseusProblemException("There is no passage body.");
+        }
     }
 
 //    private String recreateHtmlFromParsedTree(XmlNode tree) {
@@ -266,13 +272,18 @@ public class OnlineDataFactory extends DataFactory {
 //        return answer + "</" + tree.getName() + ">";
 //    }
 
+    private String getBodyOfAnswerOldFormat(String tree) {
+        Log.d("getBodyOfAnswerOld", tree.split("<body>")[1]);
+        return tree.split("<body>")[1].split("</body>")[0];
+
+    }
+
     private String createOldPerseusUrl(String chunkUrn,
                                        EditionItem editionItem) {
         String url = OLD_PERSEUS_GETPASSAGE_ADDR_PREF + editionItem.xmlDocname;
-        String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
-        String[] sectionNumbers = editionUrnSuffix[1].split("\\.");
-        String textNumber =
-                String.format(editionItem.mappingInfo, sectionNumbers);
+
+        String textNumber = String.format(editionItem.mappingInfo,
+                getUrnSuffix(chunkUrn, editionItem));
         // TODO write smth here!
         return url + textNumber;
     }

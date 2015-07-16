@@ -100,6 +100,7 @@ public class GetValidReffCommand extends AsyncTask<String, Void, List<String>> {
     protected void onPostExecute(List<String> textChunks) {
         Log.d("onPostExecute", "result number = " + result);
         if (result == CORRECT_EXECUTION) {
+            // TODO correct if no internet access
             hostFragment.get().onGetValidReffsSuccess(textChunks);
         } else {
             hostFragment.get().onGetValidReffFail(result);

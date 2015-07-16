@@ -123,7 +123,7 @@ public class XmlNode {
      * Returns child of this node.
      *
      * @param childName name of child to be returned
-     * @return child XmlNode
+     * @return child XmlNode, null if node has no children
      * @throws gs.zenodotus.back.xml.XmlNode.XmlNodeException when there is
      *                                                        no child for
      *                                                        given name
@@ -139,6 +139,8 @@ public class XmlNode {
         } catch (IndexOutOfBoundsException e) {
             throw new XmlNodeException(
                     "Call to non-existent child in getChild(String)!");
+        } catch (NullPointerException e) {
+            return null;
         }
     }
 
@@ -146,7 +148,11 @@ public class XmlNode {
      * Returns child of this node.
      *
      * @param index index of child to be returned
-     * @return child XmlNode
+     * @return child XmlNode or null if node has no child
+     * @throws gs.zenodotus.back.xml.XmlNode.XmlNodeException when there is
+     *                                                        no children of
+     *                                                        given index but
+     *                                                        node has children
      */
     public XmlNode getChild(int index) throws XmlNodeException {
         try {
@@ -154,6 +160,8 @@ public class XmlNode {
         } catch (IndexOutOfBoundsException e) {
             throw new XmlNodeException(
                     "Call to non-existent child in getChild(int)!");
+        } catch (NullPointerException e) {
+            return null;
         }
     }
 

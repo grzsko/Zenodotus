@@ -4,17 +4,23 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.List;
+import java.util.MissingFormatArgumentException;
 
 import gs.zenodotus.R;
 import gs.zenodotus.back.commands.GetEditionsCommand;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Work;
+
+import static gs.zenodotus.back.OnlineDataFactory.getUrnSuffix;
 
 public class MainDisplayActivity extends FragmentActivity
         implements BooksListFragment.OnFragmentInteractionListener,
@@ -35,20 +41,10 @@ public class MainDisplayActivity extends FragmentActivity
             firstFragment.setArguments(getIntent().getExtras());
 
             getFragmentManager().beginTransaction()
-                    .add(R.id.fragments_container, firstFragment).commit();
+                    .add(R.id.fragments_container, firstFragment, "BOOKS_LIST")
+                    .commit();
         }
     }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-////        if (id == R.id.action_settings) {
-////            return true;
-////        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     public void runEditionsFragment(Work work) {
@@ -57,181 +53,188 @@ public class MainDisplayActivity extends FragmentActivity
     }
 
     public void onGetEditionsSuccess(List<EditionItem> editionItems) {
-        EditionsListFragment editionsListFragment =
-                (EditionsListFragment) getFragmentManager()
-                        .findFragmentById(R.id.editions_list_fragment);
-        Log.d("MainDisplayActivity", "getEditionsSuccess");
-        if (editionsListFragment != null) {
-            Log.d("MainDisplayActivity", "NOT null");
-//            editionsListFragment.insertNewEditionsList(editionItems);
-            editionsListFragment.setNewAdapter(editionItems);
-        } else {
-            Log.d("MainDisplayActivity", "null");
+//        EditionsListFragment editionsListFragment =
+//                (EditionsListFragment) getFragmentManager()
+//                        .findFragmentById(R.id.editions_list_fragment);
+//        Log.d("MainDisplayActivity", "getEditionsSuccess");
+//        if (editionsListFragment != null) {
+//            Log.d("MainDisplayActivity", "NOT null");
+//            editionsListFragment.setNewAdapter(editionItems);
+//        } else {
+        EditionsListFragment newFragment = new EditionsListFragment();
+        BooksListFragment oldFragment = (BooksListFragment) getFragmentManager()
+                .findFragmentByTag("BOOKS_LIST");
 
-            EditionsListFragment newFragment = new EditionsListFragment();
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        transaction.hide(oldFragment);
+        transaction
+                .add(R.id.fragments_container, newFragment, "EDITIONS_LIST");
 
-            FragmentTransaction transaction =
-                    getFragmentManager().beginTransaction();
+        transaction.commit();
+        newFragment.insertNewEditionsList(editionItems);
 
-            transaction.replace(R.id.fragments_container, newFragment,
-                    "EDITIONS_LIST");
-            transaction.addToBackStack(null);
-
-            transaction.commit();
-            newFragment.insertNewEditionsList(editionItems);
-
+        // Hiding keyboard
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+//        }
     }
 
     @Override
     public void onEditionSelected(EditionItem item) {
-        TextDisplayFragment textDisplayFragment =
-                (TextDisplayFragment) getFragmentManager()
-                        .findFragmentById(R.id.text_fragment);
-        if (textDisplayFragment != null) {
-            Log.d("MainDisplayActivity", "text_display_exists");
-            textDisplayFragment.setItemToShow(item);
+//        TextDisplayFragment textDisplayFragment =
+//                (TextDisplayFragment) getFragmentManager()
+//                        .findFragmentById(R.id.text_fragment);
+//        if (textDisplayFragment != null) {
+//            Log.d("MainDisplayActivity", "text_display_exists");
+//            textDisplayFragment.setItemToShow(item);
+//
+//        } else {
+        TextDisplayFragment newFragment = new TextDisplayFragment();
 
-        } else {
-            TextDisplayFragment newFragment = new TextDisplayFragment();
-
-            FragmentTransaction transaction =
-                    getFragmentManager().beginTransaction();
-            EditionsListFragment oldFragment =
-                    (EditionsListFragment) getFragmentManager()
-                            .findFragmentByTag("EDITIONS_LIST");
-            transaction.hide(oldFragment);
-//            transaction.replace(R.id.fragments_container, newFragment);
-            transaction
-                    .add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
-//            transaction.addToBackStack(null);
-            // TODO correct pressing back button
-            transaction.commit();
-            Log.d("MaindisplayActivity", "before new set item to show");
-            newFragment.setItemToShow(item);
-        }
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        EditionsListFragment oldFragment =
+                (EditionsListFragment) getFragmentManager()
+                        .findFragmentByTag("EDITIONS_LIST");
+        transaction.hide(oldFragment);
+        transaction.add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
+        transaction.commit();
+        Log.d("MaindisplayActivity", "before new set item to show");
+        newFragment.setItemToShow(item);
+//        }
     }
 
     @Override
-    public void showDialog(List<String> textChunks, EditionItem item) {
-//        JumpToTextDialogFragment newFragment = new JumpToTextDialogFragment();
-//        newFragment.setCollections(textChunks, item, 0);
-        JumpToTextDialogFragment newFragment =
-                JumpToTextDialogFragment.newInstance(textChunks, item);
-        // TODO get third parameter and pass it to function above
+    public void showDialog(List<String> textChunks, EditionItem item,
+                           int position) {
+        JumpToTextDialogFragment newFragment = JumpToTextDialogFragment
+                .newInstance(textChunks, item, position);
         newFragment.show(getFragmentManager(), "dialog");
     }
 
     @Override
     public void onBackPressed() {
         // TODO END THIS FUNCTION!
-        FragmentTransaction transaction =
-                getFragmentManager().beginTransaction();
-        TextDisplayFragment oldFragment =
+        TextDisplayFragment textDisplayFragment =
                 (TextDisplayFragment) getFragmentManager()
                         .findFragmentByTag("TEXT_DISPLAY");
-        transaction.remove(oldFragment);
-        EditionsListFragment newFragment =
+        EditionsListFragment editionsListFragment =
                 (EditionsListFragment) getFragmentManager()
                         .findFragmentByTag("EDITIONS_LIST");
-        transaction.show(newFragment);
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        if (textDisplayFragment != null) {
+            textDisplayFragment.cancelCommands();
+            transaction.remove(textDisplayFragment);
+            transaction.show(editionsListFragment);
+        } else if (editionsListFragment != null) {
+            transaction.remove(editionsListFragment);
+            BooksListFragment booksListFragment =
+                    (BooksListFragment) getFragmentManager()
+                            .findFragmentByTag("BOOKS_LIST");
+            booksListFragment.cancelCommands();
+            transaction.show(booksListFragment);
+        }
         transaction.commit();
     }
 
-    public void doPositiveClick() {
-        Log.d("doClick", "positive!");
+    public void doPositiveClick(DialogInterface dialog, int whichButton) {
+        dialog.dismiss();
+        TextDisplayFragment textDisplayFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentByTag("TEXT_DISPLAY");
+        textDisplayFragment.showTextFromOutside(whichButton);
     }
 
-    public void doNegativeClick() {
-        Log.d("doClick", "negative!");
+    public void doNegativeClick(DialogInterface dialog) {
+        dialog.dismiss();
+        TextDisplayFragment textDisplayFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentByTag("TEXT_DISPLAY");
+        textDisplayFragment.updateButtonsVisibility();
     }
 
     public static class JumpToTextDialogFragment extends DialogFragment {
 
-        //        private DialogFragmentListener mListener;
         private static List<String> urns;
         private static EditionItem item;
         private static int chosenOption;
 
         public static JumpToTextDialogFragment newInstance(
-                List<String> textChunks, EditionItem item) {
-            Log.d("newinstance", "go");
+                List<String> textChunks, EditionItem item, int index) {
             JumpToTextDialogFragment frag = new JumpToTextDialogFragment();
-            frag.setCollections(textChunks, item, 0);
-//            frag.setRetainInstance(true);
+            frag.setCollections(textChunks, item, index);
             return frag;
         }
-//
-//        public JumpToTextDialogFragment() {
-//            // Required empty public constructor
-//        }
 
-
-        //    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//        TextView textView = new TextView(getActivity());
-//        textView.setText(R.string.hello_blank_fragment);
-//        return textView;
-//    }
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setTitle("tralalala");
-//            .setPositiveButton("Ok",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int
-// whichButton) {
-//                            ((DialogFragmentListener)getActivity())
-// .doPositiveClick();
-//                        }
-//                    }
-//            )
-            dialog.setNegativeButton("Kancel",
+            dialog.setTitle(R.string.jump_title);
+            dialog.setNegativeButton(R.string.cancel_button_text,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int whichButton) {
                             ((MainDisplayActivity) getActivity())
-                                    .doNegativeClick();
+                                    .doNegativeClick(dialog);
                         }
                     });
-            Log.d("oncreatdialog", "" + (urns != null));
-//            Log.d("oncreatdialog", "" + (chosenOption != null));
-            dialog.setSingleChoiceItems(urns.toArray(new String[urns.size()]),
-                    chosenOption, new DialogInterface.OnClickListener() {
+            dialog.setSingleChoiceItems(getReadableLabels(), chosenOption,
+                    new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int whichButton) {
                             ((MainDisplayActivity) getActivity())
-                                    .doPositiveClick();
+                                    .doPositiveClick(dialog, whichButton);
                         }
                     });
             return dialog.create();
         }
-//
-//        @Override
-//        public void onAttach(Activity activity) {
-//            super.onAttach(activity);
-//            Log.d("on attach", "go!");
-//            try {
-//                mListener = (DialogFragmentListener) activity;
-//            } catch (ClassCastException e) {
-//                throw new ClassCastException(activity.toString() +
-//                        " must implement OnFragmentInteractionListener");
-//            }
-//        }
 
-//        @Override
-//        public void onDetach() {
-//            super.onDetach();
-//            mListener = null;
-//        }
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            ((MainDisplayActivity) getActivity()).doNegativeClick(dialog);
+        }
 
-        public void setCollections(List<String> textChunks, EditionItem item,
+        private String[] getReadableLabels() {
+            // TODO add progress bar because it works very slowly
+            if (item.hasMappingInfo) {
+                String[] readableLabels = new String[urns.size()];
+                String mappingString = item.mappingInfo;
+                mappingString = mappingString.replace(":", ", ");
+                mappingString = mappingString.replace("=", " ");
+                mappingString = mappingString.substring(1);
+                Log.d("getReadableLabel", mappingString);
+                for (int i = 0; i < urns.size(); i++) {
+                    try {
+                        try {
+                            readableLabels[i] = String.format(mappingString,
+                                    getUrnSuffix(urns.get(i), item));
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            readableLabels[i] = urns.get(i);
+                        }
+                    } catch (MissingFormatArgumentException e) {
+                        readableLabels[i] = urns.get(i);
+                    }
+
+                }
+                return readableLabels;
+            } else {
+                return urns.toArray(new String[urns.size()]);
+            }
+
+        }
+
+        public void setCollections(List<String> textChunks, EditionItem itemArg,
                                    int index) {
-            this.urns = textChunks;
-            this.item = item;
-            this.chosenOption = index;
+            urns = textChunks;
+            item = itemArg;
+            chosenOption = index;
         }
 
         @Override
@@ -241,8 +244,5 @@ public class MainDisplayActivity extends FragmentActivity
             }
             super.onDestroyView();
         }
-
     }
-
-
 }

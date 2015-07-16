@@ -1,8 +1,9 @@
 package gs.zenodotus.front;
 
 import android.app.Activity;
-import android.app.DialogFragment;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 
@@ -40,12 +40,15 @@ public class TextDisplayFragment extends Fragment {
     private List<String> textChunksUrns;
     private String[] texts;
     private boolean textDisplayed = false;
+    private boolean progressbarHided = false;
 
     private WebView webView;
     private CircularProgressView circularProgressView;
     private MenuItem buttonLeft;
     private MenuItem buttonRight;
     private MenuItem buttonJump;
+    private GetValidReffCommand getValidReffCommand;
+    private GetTextCommand getTextCommand;
 
     public TextDisplayFragment() {
         // Required empty public constructor
@@ -70,6 +73,9 @@ public class TextDisplayFragment extends Fragment {
             putTextIntoGivenView();
 //            setContentVisible();
         }
+        if (progressbarHided) {
+            hideProgressBar();
+        }
         return view;
     }
 
@@ -84,7 +90,7 @@ public class TextDisplayFragment extends Fragment {
 
     private void setContentVisible(boolean visible) {
 //        textDisplayed = true;
-
+        progressbarHided = !visible;
         circularProgressView.setVisibility(visible ? View.GONE : View.VISIBLE);
 //        WebView webView = (WebView) getView().findViewById(R.id
 //                .text_display_webview);
@@ -93,12 +99,17 @@ public class TextDisplayFragment extends Fragment {
         updateButtonsVisibility();
     }
 
-    private void updateButtonsVisibility() {
+    void updateButtonsVisibility() {
         buttonLeft.setEnabled(textDisplayed && actualText > 0);
         buttonRight.setEnabled(
                 textDisplayed && actualText < textChunksUrns.size() - 1);
         buttonJump.setEnabled(textDisplayed);
 
+    }
+
+    void hideProgressBar() {
+        circularProgressView.setVisibility(View.GONE);
+        progressbarHided = true;
     }
 
     private void disableButtons() {
@@ -150,7 +161,7 @@ public class TextDisplayFragment extends Fragment {
 
     private void chosePage() {
         disableButtons();
-        mListener.showDialog(textChunksUrns, item);
+        mListener.showDialog(textChunksUrns, item, actualText);
     }
 
     private void jumpOnePage(int change) {
@@ -174,8 +185,8 @@ public class TextDisplayFragment extends Fragment {
     }
 
     private void fetchValidRefsForItem(EditionItem item) {
-        GetValidReffCommand command = new GetValidReffCommand(this);
-        command.execute(item.urn, item.work.urn);
+        getValidReffCommand = new GetValidReffCommand(this);
+        getValidReffCommand.execute(item.urn, item.work.urn);
     }
 
     public void setItemToShow(EditionItem item) {
@@ -195,15 +206,14 @@ public class TextDisplayFragment extends Fragment {
     private void showText(int position) {
         actualText = position;
         if (texts[position] == null) {
-            GetTextCommand command = new GetTextCommand(item, this);
-            command.execute(textChunksUrns.get(position));
+            getTextCommand = new GetTextCommand(item, this);
+            getTextCommand.execute(textChunksUrns.get(position));
         } else {
             putTextIntoGivenView();
         }
     }
 
-    private void putTextIntoGivenView() {
-        String html = getFullHtml(texts[actualText]);
+    private void putThisTextIntoView(String html) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -214,20 +224,22 @@ public class TextDisplayFragment extends Fragment {
                 "UTF-8", null);
         setContentVisible(true);
         updateButtonsVisibility();
-//        webView.loadData(html, "text/html; charset=utf-8\"", null);
     }
 
-//    private void putTextIntoView() {
-////        WebView webView = (WebView) getView().findViewById(R.id
-////                .text_display_webview);
-//        putTextIntoGivenView(webView);
-//    }
+    private void putTextIntoGivenView() {
+        String html = getFullHtml(texts[actualText]);
+        putThisTextIntoView(html);
+    }
 
     private String getFullHtml(String body) {
         String html = "<html><head><link rel=\"stylesheet\" " +
                 "type=\"text/css\" href=\"style.css\" /></head><body>";
-        html += body.replace("div1", "div");
+        html += body.replace("div1", "div").replace("tei:div", "div");
         return html + "</body></html>";
+    }
+
+    private String getEmptyHtml() {
+        return getFullHtml("");
     }
 
     public void onGetTextSuccess(String textChunk) {
@@ -236,18 +248,53 @@ public class TextDisplayFragment extends Fragment {
     }
 
     public void onGetTextFail(int errno) {
-        // TODO write here smth
+        String message = getString(R.string.get_text_crashed_text);
+        showErrorAlert(message);
+        texts[actualText] = "";
+        putTextIntoGivenView();
     }
 
     public void onGetValidReffFail(int result) {
-        int duration = Toast.LENGTH_LONG;
-        // TODO do it better!
-        Toast toast = Toast.makeText((MainDisplayActivity) mListener,
-                "GetValidReff crashed", duration);
-        toast.show();
+        String message = getString(R.string.get_validreff_crashed_text);
+        showErrorAlert(message);
+        hideProgressBar();
+        disableButtons();
+    }
+
+    private void showErrorAlert(String message) {
+        AlertDialog.Builder alertDialogBuilder =
+                new AlertDialog.Builder((MainDisplayActivity) mListener);
+        alertDialogBuilder.setMessage(message);
+
+        alertDialogBuilder.setNegativeButton(getString(R.string.got_it_text),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    public void showTextFromOutside(int whichButton) {
+        setContentVisible(false);
+        disableButtons();
+        showText(whichButton);
+    }
+
+    public void cancelCommands() {
+        if (getValidReffCommand != null) {
+            getValidReffCommand.cancel(true);
+        }
+        if (getTextCommand != null) {
+            getTextCommand.cancel(true);
+        }
     }
 
     public interface TextDisplayFragmentListener {
-        public void showDialog(List<String> textChunks, EditionItem item);
+        public void showDialog(List<String> textChunks, EditionItem item,
+                               int position);
     }
 }

@@ -18,20 +18,14 @@ import gs.zenodotus.front.BooksListFragment;
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
-    // vogella says that sparsearray is more efficient than other containers
     private final List<AuthorRow> groups;
     public LayoutInflater inflater;
     private Context context;
     private BooksListFragment fragment;
-    // TODO will it stay after changes?
 
     public ExpandableListAdapter(Fragment fragment, List<AuthorRow> authors) {
         context = fragment.getActivity();
         this.groups = authors;
-//        for (int i = 0; i < groups.size(); i++) {
-//            AuthorRow authorRow = new AuthorRow(groups.get(i));
-//            this.groups.add(authorRow);
-//        }
         this.inflater = fragment.getActivity().getLayoutInflater();
         this.fragment = (BooksListFragment) fragment;
     }
@@ -110,7 +104,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
     @Override
