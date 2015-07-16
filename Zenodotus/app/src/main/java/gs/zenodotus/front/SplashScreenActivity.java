@@ -24,7 +24,7 @@ public class SplashScreenActivity extends Activity
 //        this.deleteDatabase("perseus_capabilities.db");
 //        GlobalDataProvider.setCapabilitiesActual(this);
 //        Log.v("Splash screen", "Done!");
-        GlobalDataProvider.setOldDate(this);
+//        GlobalDataProvider.setOldDate(this);
         FragmentManager fm = getFragmentManager();
         mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (mTaskFragment == null) {

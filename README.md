@@ -18,3 +18,6 @@ Third-party libraries
 
 - ActiveAndroid
 - Icons from [Material icon collection](https://www.google.com/design/icons/index.html) (on CC-BY)
+- Greek font from [SBL](https://www.sbl-site.org/educational/biblicalfonts
+.aspx) in non-comercial, free usage of umodified version. Copyright John Hudson
+ of Tiro Typeworks.
