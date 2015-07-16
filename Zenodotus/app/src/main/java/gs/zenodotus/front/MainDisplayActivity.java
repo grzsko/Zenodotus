@@ -4,10 +4,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.List;
 
@@ -52,7 +55,6 @@ public class MainDisplayActivity extends FragmentActivity
         Log.d("MainDisplayActivity", "getEditionsSuccess");
         if (editionsListFragment != null) {
             Log.d("MainDisplayActivity", "NOT null");
-//            editionsListFragment.insertNewEditionsList(editionItems);
             editionsListFragment.setNewAdapter(editionItems);
         } else {
             Log.d("MainDisplayActivity", "null");
@@ -69,6 +71,13 @@ public class MainDisplayActivity extends FragmentActivity
             transaction.commit();
             newFragment.insertNewEditionsList(editionItems);
 
+            // Hiding keyboard below
+            View view = this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 
