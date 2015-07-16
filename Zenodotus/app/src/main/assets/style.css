@@ -21,4 +21,5 @@ note:after {
 
 l:before {
     content: attr(n) " ";
+    vertical-align: super;
 }

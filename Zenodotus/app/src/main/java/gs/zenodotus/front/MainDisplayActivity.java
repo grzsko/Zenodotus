@@ -41,7 +41,8 @@ public class MainDisplayActivity extends FragmentActivity
             firstFragment.setArguments(getIntent().getExtras());
 
             getFragmentManager().beginTransaction()
-                    .add(R.id.fragments_container, firstFragment).commit();
+                    .add(R.id.fragments_container, firstFragment, "BOOKS_LIST")
+                    .commit();
         }
     }
 
@@ -52,63 +53,79 @@ public class MainDisplayActivity extends FragmentActivity
     }
 
     public void onGetEditionsSuccess(List<EditionItem> editionItems) {
-        EditionsListFragment editionsListFragment =
-                (EditionsListFragment) getFragmentManager()
-                        .findFragmentById(R.id.editions_list_fragment);
-        Log.d("MainDisplayActivity", "getEditionsSuccess");
-        if (editionsListFragment != null) {
-            Log.d("MainDisplayActivity", "NOT null");
-            editionsListFragment.setNewAdapter(editionItems);
-        } else {
-            Log.d("MainDisplayActivity", "null");
+//        EditionsListFragment editionsListFragment =
+//                (EditionsListFragment) getFragmentManager()
+//                        .findFragmentById(R.id.editions_list_fragment);
+//        Log.d("MainDisplayActivity", "getEditionsSuccess");
+//        if (editionsListFragment != null) {
+//            Log.d("MainDisplayActivity", "NOT null");
+//            editionsListFragment.setNewAdapter(editionItems);
+//        } else {
+        Log.d("MainDisplayActivity", "null");
+////////////////
+//        FragmentTransaction transaction =
+//                getFragmentManager().beginTransaction();
+//        TextDisplayFragment oldFragment =
+//                (TextDisplayFragment) getFragmentManager()
+//                        .findFragmentByTag("TEXT_DISPLAY");
+//        transaction.remove(oldFragment);
+//        EditionsListFragment newFragment =
+//                (EditionsListFragment) getFragmentManager()
+//                        .findFragmentByTag("EDITIONS_LIST");
+//        transaction.show(newFragment);
+//        transaction.commit();
+//////////////////////
+        EditionsListFragment newFragment = new EditionsListFragment();
+        BooksListFragment oldFragment = (BooksListFragment) getFragmentManager()
+                .findFragmentByTag("BOOKS_LIST");
 
-            EditionsListFragment newFragment = new EditionsListFragment();
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        transaction.hide(oldFragment);
+        transaction
+                .add(R.id.fragments_container, newFragment, "EDITIONS_LIST");
 
-            FragmentTransaction transaction =
-                    getFragmentManager().beginTransaction();
+//            transaction.replace(R.id.fragments_container, newFragment,
+//                    "EDITIONS_LIST");
+//            transaction.addToBackStack(null);
 
-            transaction.replace(R.id.fragments_container, newFragment,
-                    "EDITIONS_LIST");
-            transaction.addToBackStack(null);
+        transaction.commit();
+        newFragment.insertNewEditionsList(editionItems);
 
-            transaction.commit();
-            newFragment.insertNewEditionsList(editionItems);
-
-            // Hiding keyboard below
-            View view = this.getCurrentFocus();
-            if (view != null) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
+        // Hiding keyboard below
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+//        }
     }
 
     @Override
     public void onEditionSelected(EditionItem item) {
-        TextDisplayFragment textDisplayFragment =
-                (TextDisplayFragment) getFragmentManager()
-                        .findFragmentById(R.id.text_fragment);
-        if (textDisplayFragment != null) {
-            Log.d("MainDisplayActivity", "text_display_exists");
-            textDisplayFragment.setItemToShow(item);
+//        TextDisplayFragment textDisplayFragment =
+//                (TextDisplayFragment) getFragmentManager()
+//                        .findFragmentById(R.id.text_fragment);
+//        if (textDisplayFragment != null) {
+//            Log.d("MainDisplayActivity", "text_display_exists");
+//            textDisplayFragment.setItemToShow(item);
+//
+//        } else {
+        TextDisplayFragment newFragment = new TextDisplayFragment();
 
-        } else {
-            TextDisplayFragment newFragment = new TextDisplayFragment();
-
-            FragmentTransaction transaction =
-                    getFragmentManager().beginTransaction();
-            EditionsListFragment oldFragment =
-                    (EditionsListFragment) getFragmentManager()
-                            .findFragmentByTag("EDITIONS_LIST");
-            transaction.hide(oldFragment);
-            transaction
-                    .add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
-            // TODO correct pressing back button
-            transaction.commit();
-            Log.d("MaindisplayActivity", "before new set item to show");
-            newFragment.setItemToShow(item);
-        }
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        EditionsListFragment oldFragment =
+                (EditionsListFragment) getFragmentManager()
+                        .findFragmentByTag("EDITIONS_LIST");
+        transaction.hide(oldFragment);
+        transaction.add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
+        // TODO correct pressing back button
+        transaction.commit();
+        Log.d("MaindisplayActivity", "before new set item to show");
+        newFragment.setItemToShow(item);
+//        }
     }
 
     @Override
@@ -125,16 +142,26 @@ public class MainDisplayActivity extends FragmentActivity
     @Override
     public void onBackPressed() {
         // TODO END THIS FUNCTION!
-        FragmentTransaction transaction =
-                getFragmentManager().beginTransaction();
-        TextDisplayFragment oldFragment =
+        TextDisplayFragment textDisplayFragment =
                 (TextDisplayFragment) getFragmentManager()
                         .findFragmentByTag("TEXT_DISPLAY");
-        transaction.remove(oldFragment);
-        EditionsListFragment newFragment =
+        EditionsListFragment editionsListFragment =
                 (EditionsListFragment) getFragmentManager()
                         .findFragmentByTag("EDITIONS_LIST");
-        transaction.show(newFragment);
+        FragmentTransaction transaction =
+                getFragmentManager().beginTransaction();
+        if (textDisplayFragment != null) {
+            textDisplayFragment.cancelCommands();
+            transaction.remove(textDisplayFragment);
+            transaction.show(editionsListFragment);
+        } else if (editionsListFragment != null) {
+            transaction.remove(editionsListFragment);
+            BooksListFragment booksListFragment =
+                    (BooksListFragment) getFragmentManager()
+                            .findFragmentByTag("BOOKS_LIST");
+            booksListFragment.cancelCommands();
+            transaction.show(booksListFragment);
+        }
         transaction.commit();
     }
 
@@ -198,22 +225,27 @@ public class MainDisplayActivity extends FragmentActivity
 
         private String[] getReadableLabels() {
             // TODO add progress bar because it works very slowly
-            String[] readableLabels = new String[urns.size()];
-            String mappingString = item.mappingInfo;
-            mappingString = mappingString.replace(":", ", ");
-            mappingString = mappingString.replace("=", " ");
-            mappingString = mappingString.substring(1);
-            Log.d("getReadableLabel", mappingString);
-            for (int i = 0; i < urns.size(); i++) {
-                try {
-                    readableLabels[i] = String.format(mappingString,
-                            getUrnSuffix(urns.get(i), item));
-                } catch (MissingFormatArgumentException e) {
-                    readableLabels[i] = urns.get(i);
-                }
+            if (item.hasMappingInfo) {
+                String[] readableLabels = new String[urns.size()];
+                String mappingString = item.mappingInfo;
+                mappingString = mappingString.replace(":", ", ");
+                mappingString = mappingString.replace("=", " ");
+                mappingString = mappingString.substring(1);
+                Log.d("getReadableLabel", mappingString);
+                for (int i = 0; i < urns.size(); i++) {
+                    try {
+                        readableLabels[i] = String.format(mappingString,
+                                getUrnSuffix(urns.get(i), item));
+                    } catch (MissingFormatArgumentException e) {
+                        readableLabels[i] = urns.get(i);
+                    }
 
+                }
+                return readableLabels;
+            } else {
+                return urns.toArray(new String[urns.size()]);
             }
-            return readableLabels;
+
         }
 
         public void setCollections(List<String> textChunks, EditionItem itemArg,

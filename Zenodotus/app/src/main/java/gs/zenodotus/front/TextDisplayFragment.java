@@ -45,6 +45,8 @@ public class TextDisplayFragment extends Fragment {
     private MenuItem buttonLeft;
     private MenuItem buttonRight;
     private MenuItem buttonJump;
+    private GetValidReffCommand getValidReffCommand;
+    private GetTextCommand getTextCommand;
 
     public TextDisplayFragment() {
         // Required empty public constructor
@@ -173,8 +175,8 @@ public class TextDisplayFragment extends Fragment {
     }
 
     private void fetchValidRefsForItem(EditionItem item) {
-        GetValidReffCommand command = new GetValidReffCommand(this);
-        command.execute(item.urn, item.work.urn);
+        getValidReffCommand = new GetValidReffCommand(this);
+        getValidReffCommand.execute(item.urn, item.work.urn);
     }
 
     public void setItemToShow(EditionItem item) {
@@ -194,8 +196,8 @@ public class TextDisplayFragment extends Fragment {
     private void showText(int position) {
         actualText = position;
         if (texts[position] == null) {
-            GetTextCommand command = new GetTextCommand(item, this);
-            command.execute(textChunksUrns.get(position));
+            getTextCommand = new GetTextCommand(item, this);
+            getTextCommand.execute(textChunksUrns.get(position));
         } else {
             putTextIntoGivenView();
         }
@@ -218,7 +220,7 @@ public class TextDisplayFragment extends Fragment {
     private String getFullHtml(String body) {
         String html = "<html><head><link rel=\"stylesheet\" " +
                 "type=\"text/css\" href=\"style.css\" /></head><body>";
-        html += body.replace("div1", "div");
+        html += body.replace("div1", "div").replace("tei:div", "div");
         return html + "</body></html>";
     }
 
@@ -248,5 +250,14 @@ public class TextDisplayFragment extends Fragment {
     public interface TextDisplayFragmentListener {
         public void showDialog(List<String> textChunks, EditionItem item,
                                int position);
+    }
+
+    public void cancelCommands() {
+        if (getValidReffCommand != null) {
+            getValidReffCommand.cancel(true);
+        }
+        if (getTextCommand != null) {
+            getTextCommand.cancel(true);
+        }
     }
 }

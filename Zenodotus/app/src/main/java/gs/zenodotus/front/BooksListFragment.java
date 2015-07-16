@@ -100,7 +100,13 @@ public class BooksListFragment extends Fragment {
         mListener.runEditionsFragment(work);
     }
 
+    public void cancelCommands() {
+        if (command != null) {
+            command.cancel(true);
+        }
+    }
+
     public interface OnFragmentInteractionListener {
-        public void runEditionsFragment(Work work);
+        void runEditionsFragment(Work work);
     }
 }
