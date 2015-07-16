@@ -13,11 +13,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import java.util.List;
+import java.util.MissingFormatArgumentException;
 
 import gs.zenodotus.R;
 import gs.zenodotus.back.commands.GetEditionsCommand;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Work;
+
+import static gs.zenodotus.back.OnlineDataFactory.getUrnSuffix;
 
 public class MainDisplayActivity extends FragmentActivity
         implements BooksListFragment.OnFragmentInteractionListener,
@@ -109,11 +112,12 @@ public class MainDisplayActivity extends FragmentActivity
     }
 
     @Override
-    public void showDialog(List<String> textChunks, EditionItem item) {
+    public void showDialog(List<String> textChunks, EditionItem item,
+                           int position) {
 //        JumpToTextDialogFragment newFragment = new JumpToTextDialogFragment();
 //        newFragment.setCollections(textChunks, item, 0);
-        JumpToTextDialogFragment newFragment =
-                JumpToTextDialogFragment.newInstance(textChunks, item);
+        JumpToTextDialogFragment newFragment = JumpToTextDialogFragment
+                .newInstance(textChunks, item, position);
         // TODO get third parameter and pass it to function above
         newFragment.show(getFragmentManager(), "dialog");
     }
@@ -157,9 +161,9 @@ public class MainDisplayActivity extends FragmentActivity
         private static int chosenOption;
 
         public static JumpToTextDialogFragment newInstance(
-                List<String> textChunks, EditionItem item) {
+                List<String> textChunks, EditionItem item, int index) {
             JumpToTextDialogFragment frag = new JumpToTextDialogFragment();
-            frag.setCollections(textChunks, item, 0);
+            frag.setCollections(textChunks, item, index);
             return frag;
         }
 
@@ -176,8 +180,8 @@ public class MainDisplayActivity extends FragmentActivity
                                     .doNegativeClick(dialog);
                         }
                     });
-            dialog.setSingleChoiceItems(urns.toArray(new String[urns.size()]),
-                    chosenOption, new DialogInterface.OnClickListener() {
+            dialog.setSingleChoiceItems(getReadableLabels(), chosenOption,
+                    new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int whichButton) {
                             ((MainDisplayActivity) getActivity())
@@ -187,10 +191,35 @@ public class MainDisplayActivity extends FragmentActivity
             return dialog.create();
         }
 
-        public void setCollections(List<String> textChunks, EditionItem item,
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            ((MainDisplayActivity) getActivity()).doNegativeClick(dialog);
+        }
+
+        private String[] getReadableLabels() {
+            // TODO add progress bar because it works very slowly
+            String[] readableLabels = new String[urns.size()];
+            String mappingString = item.mappingInfo;
+            mappingString = mappingString.replace(":", ", ");
+            mappingString = mappingString.replace("=", " ");
+            mappingString = mappingString.substring(1);
+            Log.d("getReadableLabel", mappingString);
+            for (int i = 0; i < urns.size(); i++) {
+                try {
+                    readableLabels[i] = String.format(mappingString,
+                            getUrnSuffix(urns.get(i), item));
+                } catch (MissingFormatArgumentException e) {
+                    readableLabels[i] = urns.get(i);
+                }
+
+            }
+            return readableLabels;
+        }
+
+        public void setCollections(List<String> textChunks, EditionItem itemArg,
                                    int index) {
             urns = textChunks;
-            item = item;
+            item = itemArg;
             chosenOption = index;
         }
 

@@ -266,13 +266,19 @@ public class OnlineDataFactory extends DataFactory {
 //        return answer + "</" + tree.getName() + ">";
 //    }
 
+    public static String[] getUrnSuffix(String chunkUrn,
+                               EditionItem editionItem) {
+        String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
+        return editionUrnSuffix[1].split("\\.");
+    }
+
     private String createOldPerseusUrl(String chunkUrn,
                                        EditionItem editionItem) {
         String url = OLD_PERSEUS_GETPASSAGE_ADDR_PREF + editionItem.xmlDocname;
-        String[] editionUrnSuffix = chunkUrn.split(editionItem.urn + ":");
-        String[] sectionNumbers = editionUrnSuffix[1].split("\\.");
+
         String textNumber =
-                String.format(editionItem.mappingInfo, sectionNumbers);
+                String.format(editionItem.mappingInfo, getUrnSuffix(chunkUrn,
+                 editionItem       ));
         // TODO write smth here!
         return url + textNumber;
     }
