@@ -1,6 +1,7 @@
 package gs.zenodotus.front;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
@@ -149,6 +150,7 @@ public class TextDisplayFragment extends Fragment {
 
     private void chosePage() {
         disableButtons();
+        mListener.showDialog(textChunksUrns, item);
     }
 
     private void jumpOnePage(int change) {
@@ -246,7 +248,6 @@ public class TextDisplayFragment extends Fragment {
     }
 
     public interface TextDisplayFragmentListener {
-        public void onTextDisplayFragmentInteraction();
+        public void showDialog(List<String> textChunks, EditionItem item);
     }
-
 }

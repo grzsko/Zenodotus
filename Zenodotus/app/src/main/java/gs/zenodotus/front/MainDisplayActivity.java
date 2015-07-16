@@ -1,11 +1,13 @@
 package gs.zenodotus.front;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.List;
 
@@ -95,12 +97,13 @@ public class MainDisplayActivity extends FragmentActivity
 
             FragmentTransaction transaction =
                     getFragmentManager().beginTransaction();
-            EditionsListFragment oldFragment = (EditionsListFragment)
-                    getFragmentManager().findFragmentByTag("EDITIONS_LIST");
+            EditionsListFragment oldFragment =
+                    (EditionsListFragment) getFragmentManager()
+                            .findFragmentByTag("EDITIONS_LIST");
             transaction.hide(oldFragment);
 //            transaction.replace(R.id.fragments_container, newFragment);
-            transaction.add(R.id.fragments_container, newFragment,
-                    "TEXT_DISPLAY");
+            transaction
+                    .add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
 //            transaction.addToBackStack(null);
             // TODO correct pressing back button
             transaction.commit();
@@ -110,7 +113,13 @@ public class MainDisplayActivity extends FragmentActivity
     }
 
     @Override
-    public void onTextDisplayFragmentInteraction() {
+    public void showDialog(List<String> textChunks, EditionItem item) {
+//        JumpToTextDialogFragment newFragment = new JumpToTextDialogFragment();
+//        newFragment.setCollections(textChunks, item, 0);
+        JumpToTextDialogFragment newFragment =
+                JumpToTextDialogFragment.newInstance(textChunks, item);
+        // TODO get third parameter and pass it to function above
+        newFragment.show(getFragmentManager(), "dialog");
     }
 
     @Override
@@ -118,12 +127,122 @@ public class MainDisplayActivity extends FragmentActivity
         // TODO END THIS FUNCTION!
         FragmentTransaction transaction =
                 getFragmentManager().beginTransaction();
-        TextDisplayFragment oldFragment = (TextDisplayFragment)
-                getFragmentManager().findFragmentByTag("TEXT_DISPLAY");
+        TextDisplayFragment oldFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentByTag("TEXT_DISPLAY");
         transaction.remove(oldFragment);
-        EditionsListFragment newFragment = (EditionsListFragment) getFragmentManager()
-                .findFragmentByTag("EDITIONS_LIST");
+        EditionsListFragment newFragment =
+                (EditionsListFragment) getFragmentManager()
+                        .findFragmentByTag("EDITIONS_LIST");
         transaction.show(newFragment);
         transaction.commit();
     }
+
+    public void doPositiveClick() {
+        Log.d("doClick", "positive!");
+    }
+
+    public void doNegativeClick() {
+        Log.d("doClick", "negative!");
+    }
+
+    public static class JumpToTextDialogFragment extends DialogFragment {
+
+        //        private DialogFragmentListener mListener;
+        private static List<String> urns;
+        private static EditionItem item;
+        private static int chosenOption;
+
+        public static JumpToTextDialogFragment newInstance(
+                List<String> textChunks, EditionItem item) {
+            Log.d("newinstance", "go");
+            JumpToTextDialogFragment frag = new JumpToTextDialogFragment();
+            frag.setCollections(textChunks, item, 0);
+//            frag.setRetainInstance(true);
+            return frag;
+        }
+//
+//        public JumpToTextDialogFragment() {
+//            // Required empty public constructor
+//        }
+
+
+        //    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                             Bundle savedInstanceState) {
+//        TextView textView = new TextView(getActivity());
+//        textView.setText(R.string.hello_blank_fragment);
+//        return textView;
+//    }
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            dialog.setTitle("tralalala");
+//            .setPositiveButton("Ok",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int
+// whichButton) {
+//                            ((DialogFragmentListener)getActivity())
+// .doPositiveClick();
+//                        }
+//                    }
+//            )
+            dialog.setNegativeButton("Kancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int whichButton) {
+                            ((MainDisplayActivity) getActivity())
+                                    .doNegativeClick();
+                        }
+                    });
+            Log.d("oncreatdialog", "" + (urns != null));
+//            Log.d("oncreatdialog", "" + (chosenOption != null));
+            dialog.setSingleChoiceItems(urns.toArray(new String[urns.size()]),
+                    chosenOption, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int whichButton) {
+                            ((MainDisplayActivity) getActivity())
+                                    .doPositiveClick();
+                        }
+                    });
+            return dialog.create();
+        }
+//
+//        @Override
+//        public void onAttach(Activity activity) {
+//            super.onAttach(activity);
+//            Log.d("on attach", "go!");
+//            try {
+//                mListener = (DialogFragmentListener) activity;
+//            } catch (ClassCastException e) {
+//                throw new ClassCastException(activity.toString() +
+//                        " must implement OnFragmentInteractionListener");
+//            }
+//        }
+
+//        @Override
+//        public void onDetach() {
+//            super.onDetach();
+//            mListener = null;
+//        }
+
+        public void setCollections(List<String> textChunks, EditionItem item,
+                                   int index) {
+            this.urns = textChunks;
+            this.item = item;
+            this.chosenOption = index;
+        }
+
+        @Override
+        public void onDestroyView() {
+            if (getDialog() != null && getRetainInstance()) {
+                getDialog().setDismissMessage(null);
+            }
+            super.onDestroyView();
+        }
+
+    }
+
+
 }
