@@ -3,6 +3,7 @@ package gs.zenodotus.front;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,13 +22,18 @@ import gs.zenodotus.back.commands.GetAuthorsCommand;
 import gs.zenodotus.back.database.Work;
 
 public class BooksListFragment extends Fragment {
+    ExpandableListAdapter adapter;
+    GetAuthorsCommand command;
+    Parcelable state;
     private final TextWatcher authorTextWatcher = new TextWatcher() {
 
         public void beforeTextChanged(CharSequence s, int start, int count,
-                                      int after) {}
+                                      int after) {
+        }
 
         public void onTextChanged(CharSequence s, int start, int before,
-                                  int count) {}
+                                  int count) {
+        }
 
         public void afterTextChanged(Editable pattern) {
             if (command != null) {
@@ -37,9 +43,7 @@ public class BooksListFragment extends Fragment {
             command.execute(pattern.toString());
         }
     };
-
-    ExpandableListAdapter adapter;
-    GetAuthorsCommand command;
+    ExpandableListView listView;
     private OnFragmentInteractionListener mListener;
 
     public BooksListFragment() {
@@ -61,11 +65,15 @@ public class BooksListFragment extends Fragment {
         EditText editText =
                 (EditText) rootView.findViewById(R.id.author_search_text);
         editText.addTextChangedListener(authorTextWatcher);
-        if (adapter != null) {
-            ExpandableListView listView =
-                    (ExpandableListView) rootView.findViewById(R.id.listView);
-            listView.setAdapter(adapter);
-        }
+        listView =
+                (ExpandableListView) rootView.findViewById(R.id.listView);
+//            listView.setAdapter(adapter);
+//        listView.setSaveEnabled(true);
+////        if (adapter != null) {
+//            if (state != null) {
+//                listView.onRestoreInstanceState(state);
+//            }
+////        }
         return rootView;
     }
 

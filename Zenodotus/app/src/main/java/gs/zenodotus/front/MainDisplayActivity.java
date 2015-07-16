@@ -61,20 +61,6 @@ public class MainDisplayActivity extends FragmentActivity
 //            Log.d("MainDisplayActivity", "NOT null");
 //            editionsListFragment.setNewAdapter(editionItems);
 //        } else {
-        Log.d("MainDisplayActivity", "null");
-////////////////
-//        FragmentTransaction transaction =
-//                getFragmentManager().beginTransaction();
-//        TextDisplayFragment oldFragment =
-//                (TextDisplayFragment) getFragmentManager()
-//                        .findFragmentByTag("TEXT_DISPLAY");
-//        transaction.remove(oldFragment);
-//        EditionsListFragment newFragment =
-//                (EditionsListFragment) getFragmentManager()
-//                        .findFragmentByTag("EDITIONS_LIST");
-//        transaction.show(newFragment);
-//        transaction.commit();
-//////////////////////
         EditionsListFragment newFragment = new EditionsListFragment();
         BooksListFragment oldFragment = (BooksListFragment) getFragmentManager()
                 .findFragmentByTag("BOOKS_LIST");
@@ -85,14 +71,10 @@ public class MainDisplayActivity extends FragmentActivity
         transaction
                 .add(R.id.fragments_container, newFragment, "EDITIONS_LIST");
 
-//            transaction.replace(R.id.fragments_container, newFragment,
-//                    "EDITIONS_LIST");
-//            transaction.addToBackStack(null);
-
         transaction.commit();
         newFragment.insertNewEditionsList(editionItems);
 
-        // Hiding keyboard below
+        // Hiding keyboard
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(
@@ -121,7 +103,6 @@ public class MainDisplayActivity extends FragmentActivity
                         .findFragmentByTag("EDITIONS_LIST");
         transaction.hide(oldFragment);
         transaction.add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
-        // TODO correct pressing back button
         transaction.commit();
         Log.d("MaindisplayActivity", "before new set item to show");
         newFragment.setItemToShow(item);
@@ -131,11 +112,8 @@ public class MainDisplayActivity extends FragmentActivity
     @Override
     public void showDialog(List<String> textChunks, EditionItem item,
                            int position) {
-//        JumpToTextDialogFragment newFragment = new JumpToTextDialogFragment();
-//        newFragment.setCollections(textChunks, item, 0);
         JumpToTextDialogFragment newFragment = JumpToTextDialogFragment
                 .newInstance(textChunks, item, position);
-        // TODO get third parameter and pass it to function above
         newFragment.show(getFragmentManager(), "dialog");
     }
 
@@ -234,8 +212,12 @@ public class MainDisplayActivity extends FragmentActivity
                 Log.d("getReadableLabel", mappingString);
                 for (int i = 0; i < urns.size(); i++) {
                     try {
-                        readableLabels[i] = String.format(mappingString,
-                                getUrnSuffix(urns.get(i), item));
+                        try {
+                            readableLabels[i] = String.format(mappingString,
+                                    getUrnSuffix(urns.get(i), item));
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            readableLabels[i] = urns.get(i);
+                        }
                     } catch (MissingFormatArgumentException e) {
                         readableLabels[i] = urns.get(i);
                     }

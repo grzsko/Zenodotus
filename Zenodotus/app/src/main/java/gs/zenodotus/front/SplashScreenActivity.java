@@ -20,10 +20,6 @@ public class SplashScreenActivity extends Activity
 
     public void doCommand(View view) {
         hideErrorButton();
-        Log.d("splash", "do command");
-//        this.deleteDatabase("perseus_capabilities.db");
-//        GlobalDataProvider.setCapabilitiesActual(this);
-//        Log.v("Splash screen", "Done!");
 //        GlobalDataProvider.setOldDate(this);
         FragmentManager fm = getFragmentManager();
         mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
@@ -56,22 +52,11 @@ public class SplashScreenActivity extends Activity
 
     @Override
     public void onGetCapabilitiesFail(int errno) {
-        Log.d("splash", "fail");
         FragmentManager fm = getFragmentManager();
         mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (mTaskFragment != null) {
             mTaskFragment.stopExecuting();
         }
-//        switch (errno) {
-//            case GetCapabilitiesCommand.LOST_CONNECTION:
-//                // TODO add refresh button!
-//                Log.d("GetcapabilitiesFail", "lost connection");
-//                break;
-//            case GetCapabilitiesCommand.BAD_ANSWER:
-//                // TODO add refresh button and give info!
-//                Log.d("GetcapabilitiesFail", "bad answer");
-//                break;
-//        }
         showErrorButton();
     }
 

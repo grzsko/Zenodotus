@@ -12,4 +12,8 @@
     <string name="cancel_button_text">Anuluj!</string>
     <string name="error_note">Aplikacja miała problem z połączeniem się z serwerami Perseusza. Zapewne wynika to z niedoboru dostępu do Internetu w urządzeniu. Poszukaj brakującego Internetu, a następnie naciśnij przycisk Odśwież!.</string>
     <string name="refresh_text">Odśwież!</string>
+    <string name="get_validreff_crashed_text">Niestety, serwer Perseusza przestał poprawnie działać lub aplikacja napotkała problem z dostępem do internetu. Pamiętaj, że jest on wciąż nieukończony i w wielu wypadkach nie działa poprawnie.</string>
+    <string name="get_validreff_internet_connection">Niestety, aplikacja napotkała problem z dostępem do internetu.</string>
+    <string name="got_it_text">Zrozumiałem to i jestem świadomy, że nie mam możliwości rozwiązać tych problemów.</string>
+    <string name="get_text_crashed_text">Niestety, serwer Perseusza przestał poprawnie działać lub aplikacja napotkała problem z dostępem do internetu i nie może wyświetlić tego fragmentu. Pamiętaj, że serwer ten jest wciąż nieukończony i w wielu wypadkach nie działa poprawnie. Spróbuj wyświetlić inny fragment!</string>
 </resources>

@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import gs.zenodotus.back.commands.PerseusProblemException;
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Language;
@@ -218,7 +219,7 @@ public class OnlineDataFactory extends DataFactory {
 
     @Override
     public String getTextChunk(String chunkUrn, EditionItem editionItem)
-            throws IOException {
+            throws IOException, PerseusProblemException {
         String url;
         boolean askOldPerseusInstance = editionItem.hasMappingInfo &&
                 chunkUrn.startsWith(editionItem.work.urn);
@@ -249,8 +250,13 @@ public class OnlineDataFactory extends DataFactory {
         return bodyOfAnswer;
     }
 
-    private String getBodyOfAnswerNewFormat(String tree) {
-        return tree.split("<tei:body>")[1].split("</tei:body>")[0];
+    private String getBodyOfAnswerNewFormat(String tree)
+            throws PerseusProblemException {
+        try {
+            return tree.split("<tei:body>")[1].split("</tei:body>")[0];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new PerseusProblemException("There is no passage body.");
+        }
     }
 
 //    private String recreateHtmlFromParsedTree(XmlNode tree) {

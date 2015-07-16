@@ -2,6 +2,6 @@
 <resources>
     <item name="maroon" type="color">#884221</item>
     <item name="light_maroon" type="color">#ffa04822</item>
-    <item name="grey" type="color">#ff5b5b5b</item>
+    <item name="grey" type="color">#ff7e7e7e</item>
     <color name="white">@android:color/white</color>
 </resources>

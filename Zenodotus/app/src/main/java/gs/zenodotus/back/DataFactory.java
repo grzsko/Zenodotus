@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import gs.zenodotus.back.commands.PerseusProblemException;
 import gs.zenodotus.back.database.Author;
 import gs.zenodotus.back.database.EditionItem;
 import gs.zenodotus.back.database.Work;
@@ -44,5 +45,5 @@ public abstract class DataFactory {
 
     public abstract String getTextChunk(String chunkUrn,
                                         EditionItem editionItem)
-            throws IOException;
+            throws IOException, PerseusProblemException;
 }

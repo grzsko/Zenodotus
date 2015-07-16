@@ -6,6 +6,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import javax.xml.transform.Result;
+
 import gs.zenodotus.back.DataFactory;
 import gs.zenodotus.back.GlobalDataProvider;
 import gs.zenodotus.back.database.EditionItem;
@@ -14,6 +16,9 @@ import gs.zenodotus.front.TextDisplayFragment;
 public class GetTextCommand extends AsyncTask<String, Void, String> {
     WeakReference<TextDisplayFragment> hostFragment;
     private EditionItem editionItem;
+    int result = 0;
+    public static final int LOST_CONNECTION = 1;
+    public static final int PERSEUS_PROBLEM = 2;
 
     public GetTextCommand(EditionItem item, TextDisplayFragment hostFragment) {
         this.editionItem = item;
@@ -24,9 +29,13 @@ public class GetTextCommand extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
         DataFactory factory = GlobalDataProvider.getFactory();
         try {
-            return factory.getTextChunk(params[0], editionItem);
+            try {
+                return factory.getTextChunk(params[0], editionItem);
+            } catch (PerseusProblemException e) {
+                result = PERSEUS_PROBLEM;
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            result = LOST_CONNECTION;
         }
         return "";
     }
@@ -35,6 +44,10 @@ public class GetTextCommand extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         Log.d("GetTextCommand", s);
-        hostFragment.get().onGetTextSuccess(s);
+        if (result == 0) {
+            hostFragment.get().onGetTextSuccess(s);
+        } else {
+            hostFragment.get().onGetTextFail(result);
+        }
     }
 }
