@@ -49,3 +49,6 @@ Zenodotus/build
 # Generated doc files
 docs/html/
 docs/latex/
+
+# trash
+trash/*

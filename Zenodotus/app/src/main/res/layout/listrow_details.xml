@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="40dp"
+              android:clickable="true"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/vertical_padding"
+              android:paddingLeft="40dp"
+              android:paddingTop="@dimen/vertical_padding"
+              tools:context="gs.zenodotus.front.BooksListFragment">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="@string/hello_world"
+        android:textSize="@dimen/lower_average_text_size"
+        android:textStyle="bold">
+    </TextView>
+
+    <!--<View-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="1dp"-->
+    <!--android:background="@android:color/black" />-->
+
+</LinearLayout>
