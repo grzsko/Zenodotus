@@ -39,17 +39,6 @@ public class MainDisplayActivity extends FragmentActivity
         }
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-////        if (id == R.id.action_settings) {
-////            return true;
-////        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @Override
     public void runEditionsFragment(Work work) {
         GetEditionsCommand getEditionsCommand = new GetEditionsCommand(this);
@@ -101,10 +90,8 @@ public class MainDisplayActivity extends FragmentActivity
                     (EditionsListFragment) getFragmentManager()
                             .findFragmentByTag("EDITIONS_LIST");
             transaction.hide(oldFragment);
-//            transaction.replace(R.id.fragments_container, newFragment);
             transaction
                     .add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
-//            transaction.addToBackStack(null);
             // TODO correct pressing back button
             transaction.commit();
             Log.d("MaindisplayActivity", "before new set item to show");
@@ -138,100 +125,64 @@ public class MainDisplayActivity extends FragmentActivity
         transaction.commit();
     }
 
-    public void doPositiveClick() {
-        Log.d("doClick", "positive!");
+    public void doPositiveClick(DialogInterface dialog, int whichButton) {
+        dialog.dismiss();
+        TextDisplayFragment textDisplayFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentByTag("TEXT_DISPLAY");
+        textDisplayFragment.showTextFromOutside(whichButton);
     }
 
-    public void doNegativeClick() {
-        Log.d("doClick", "negative!");
+    public void doNegativeClick(DialogInterface dialog) {
+        dialog.dismiss();
+        TextDisplayFragment textDisplayFragment =
+                (TextDisplayFragment) getFragmentManager()
+                        .findFragmentByTag("TEXT_DISPLAY");
+        textDisplayFragment.updateButtonsVisibility();
     }
 
     public static class JumpToTextDialogFragment extends DialogFragment {
 
-        //        private DialogFragmentListener mListener;
         private static List<String> urns;
         private static EditionItem item;
         private static int chosenOption;
 
         public static JumpToTextDialogFragment newInstance(
                 List<String> textChunks, EditionItem item) {
-            Log.d("newinstance", "go");
             JumpToTextDialogFragment frag = new JumpToTextDialogFragment();
             frag.setCollections(textChunks, item, 0);
-//            frag.setRetainInstance(true);
             return frag;
         }
-//
-//        public JumpToTextDialogFragment() {
-//            // Required empty public constructor
-//        }
 
-
-        //    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//        TextView textView = new TextView(getActivity());
-//        textView.setText(R.string.hello_blank_fragment);
-//        return textView;
-//    }
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setTitle("tralalala");
-//            .setPositiveButton("Ok",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int
-// whichButton) {
-//                            ((DialogFragmentListener)getActivity())
-// .doPositiveClick();
-//                        }
-//                    }
-//            )
-            dialog.setNegativeButton("Kancel",
+            dialog.setTitle(R.string.jump_title);
+            dialog.setNegativeButton(R.string.cancel_button_text,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int whichButton) {
                             ((MainDisplayActivity) getActivity())
-                                    .doNegativeClick();
+                                    .doNegativeClick(dialog);
                         }
                     });
-            Log.d("oncreatdialog", "" + (urns != null));
-//            Log.d("oncreatdialog", "" + (chosenOption != null));
             dialog.setSingleChoiceItems(urns.toArray(new String[urns.size()]),
                     chosenOption, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int whichButton) {
                             ((MainDisplayActivity) getActivity())
-                                    .doPositiveClick();
+                                    .doPositiveClick(dialog, whichButton);
                         }
                     });
             return dialog.create();
         }
-//
-//        @Override
-//        public void onAttach(Activity activity) {
-//            super.onAttach(activity);
-//            Log.d("on attach", "go!");
-//            try {
-//                mListener = (DialogFragmentListener) activity;
-//            } catch (ClassCastException e) {
-//                throw new ClassCastException(activity.toString() +
-//                        " must implement OnFragmentInteractionListener");
-//            }
-//        }
-
-//        @Override
-//        public void onDetach() {
-//            super.onDetach();
-//            mListener = null;
-//        }
 
         public void setCollections(List<String> textChunks, EditionItem item,
                                    int index) {
-            this.urns = textChunks;
-            this.item = item;
-            this.chosenOption = index;
+            urns = textChunks;
+            item = item;
+            chosenOption = index;
         }
 
         @Override
@@ -241,8 +192,5 @@ public class MainDisplayActivity extends FragmentActivity
             }
             super.onDestroyView();
         }
-
     }
-
-
 }

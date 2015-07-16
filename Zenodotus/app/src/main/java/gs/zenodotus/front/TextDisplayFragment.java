@@ -93,7 +93,7 @@ public class TextDisplayFragment extends Fragment {
         updateButtonsVisibility();
     }
 
-    private void updateButtonsVisibility() {
+    void updateButtonsVisibility() {
         buttonLeft.setEnabled(textDisplayed && actualText > 0);
         buttonRight.setEnabled(
                 textDisplayed && actualText < textChunksUrns.size() - 1);
@@ -214,14 +214,7 @@ public class TextDisplayFragment extends Fragment {
                 "UTF-8", null);
         setContentVisible(true);
         updateButtonsVisibility();
-//        webView.loadData(html, "text/html; charset=utf-8\"", null);
     }
-
-//    private void putTextIntoView() {
-////        WebView webView = (WebView) getView().findViewById(R.id
-////                .text_display_webview);
-//        putTextIntoGivenView(webView);
-//    }
 
     private String getFullHtml(String body) {
         String html = "<html><head><link rel=\"stylesheet\" " +
@@ -245,6 +238,12 @@ public class TextDisplayFragment extends Fragment {
         Toast toast = Toast.makeText((MainDisplayActivity) mListener,
                 "GetValidReff crashed", duration);
         toast.show();
+    }
+
+    public void showTextFromOutside(int whichButton) {
+        setContentVisible(false);
+        disableButtons();
+        showText(whichButton);
     }
 
     public interface TextDisplayFragmentListener {

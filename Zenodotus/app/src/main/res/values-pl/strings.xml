@@ -8,4 +8,6 @@
     <string name="loading_note">Aplikacja pobiera dane z serwera Perseusza. Ta czynność może trwać długo. Nie poddawaj się, następnym razem aplikacja uruchomi się szybciej!</string>
     <string name="hello_blank_fragment"></string>
     <string name="search_placeholder">Szukaj autora...</string>
+    <string name="jump_title">Skocz do</string>
+    <string name="cancel_button_text">Anuluj!</string>
 </resources>
