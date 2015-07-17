@@ -19,7 +19,7 @@ public class SplashScreenActivity extends Activity
 
     public void doCommand(View view) {
         hideErrorButton();
-        GlobalDataProvider.setOldDate(this);
+//        GlobalDataProvider.setOldDate(this);
         FragmentManager fm = getFragmentManager();
         mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (mTaskFragment == null) {
