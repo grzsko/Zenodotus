@@ -7,4 +7,5 @@
     <dimen name="upper_average_text_size">17sp</dimen>
     <dimen name="lower_average_text_size">14sp</dimen>
     <dimen name="vertical_padding">10dp</dimen>
+    <dimen name="typical_margin_bottom">10dp</dimen>
 </resources>

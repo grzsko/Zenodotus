@@ -46,7 +46,6 @@ public class EditionsListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d("EditionsListFragment", "onCreateView");
         // If activity recreated (such as from screen rotate), restore
         // the previous article selection set by onSaveInstanceState().
         // This is primarily necessary when in the two-pane layout.
@@ -105,6 +104,6 @@ public class EditionsListFragment extends ListFragment {
     }
 
     public interface EditionsListListener {
-        public void onEditionSelected(EditionItem item);
+        void onEditionSelected(EditionItem item);
     }
 }

@@ -24,7 +24,6 @@ public class GetEditionsCommand
     @Override
     protected List<EditionItem> doInBackground(Work... params) {
         Work work = params[0];
-        // TODO check length!
         return new Select().from(EditionItem.class).where("work = ?", work.getId())
                 .execute();
     }

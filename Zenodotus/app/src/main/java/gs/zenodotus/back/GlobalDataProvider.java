@@ -8,8 +8,6 @@ import java.util.Date;
 
 import gs.zenodotus.R;
 
-//import java.util.Calendar;
-
 /**
  * Stores global attributes and methods for application.
  * There is no instance of this class, all methods are static.
@@ -68,7 +66,13 @@ public class GlobalDataProvider {
         editor.commit();
     }
 
-    // Only for tests
+    /**
+     * For test reason change last getcapabilities date.
+     * Making them older than one year causes recalling {@link gs.zenodotus
+     * .back.commands.GetCapabilitiesCommand}
+     *
+     * @param context
+     */
     public static void setOldDate(Context context) {
         Calendar yearAgo = Calendar.getInstance();
         yearAgo.add(Calendar.YEAR, -3);

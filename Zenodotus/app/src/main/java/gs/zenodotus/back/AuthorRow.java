@@ -1,6 +1,5 @@
 package gs.zenodotus.back;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import gs.zenodotus.back.database.Author;
@@ -11,7 +10,8 @@ public class AuthorRow {
     public Author author;
     public List<Work> children;
 
-    public AuthorRow() {}
+    public AuthorRow() {
+    }
 
     public AuthorRow(Author author, List<Work> books) {
         this.author = author;
