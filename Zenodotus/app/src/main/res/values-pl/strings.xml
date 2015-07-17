@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zenodot</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="hello_world">Ahoj przygodo!</string>
+    <string name="title_activity_splash_screen">Ekran plamisty</string>
+    <string name="author_note">Autor aplikacji: Grzegorz Skoraczyński</string>
+    <string name="loading_note">Aplikacja pobiera dane z serwera Perseusza. Ta czynność może trwać długo. Nie poddawaj się, następnym razem aplikacja uruchomi się szybciej!</string>
+    <string name="hello_blank_fragment"></string>
+    <string name="search_placeholder">Szukaj autora...</string>
+    <string name="jump_title">Skocz do</string>
+    <string name="cancel_button_text">Anuluj!</string>
+    <string name="error_note">Aplikacja miała problem z połączeniem się z serwerami Perseusza. Zapewne wynika to z niedoboru dostępu do Internetu w urządzeniu. Poszukaj brakującego Internetu, a następnie naciśnij przycisk Odśwież!.</string>
+    <string name="refresh_text">Odśwież!</string>
+    <string name="get_validreff_crashed_text">Niestety, serwer Perseusza przestał poprawnie działać lub aplikacja napotkała problem z dostępem do internetu. Pamiętaj, że jest on wciąż nieukończony i w wielu wypadkach nie działa poprawnie.</string>
+    <string name="get_validreff_internet_connection">Niestety, aplikacja napotkała problem z dostępem do internetu.</string>
+    <string name="got_it_text">Zrozumiałem to i jestem świadomy, że nie mam możliwości rozwiązać tych problemów.</string>
+    <string name="get_text_crashed_text">Niestety, serwer Perseusza przestał poprawnie działać lub aplikacja napotkała problem z dostępem do internetu i nie może wyświetlić tego fragmentu. Pamiętaj, że serwer ten jest wciąż nieukończony i w wielu wypadkach nie działa poprawnie. Spróbuj wyświetlić inny fragment!</string>
+</resources>

@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainDisplayActivity">
+    <item
+        android:id="@+id/action_left"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_arrow_back_white_24dp"
+        android:title="left"
+        android:enabled="false"/>
+    <item
+        android:id="@+id/action_jump"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_dehaze_white_24dp"
+        android:title="jump"
+        android:enabled="false"/>
+    <item
+        android:id="@+id/action_right"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_arrow_forward_white_24dp"
+        android:title="right"
+        android:enabled="false"/>
+</menu>
