@@ -7,7 +7,8 @@ import android.os.Bundle;
 import gs.zenodotus.back.commands.GetCapabilitiesCommand;
 
 /**
- * This Fragment manages a single background task and retains
+ * This Fragment manages a single background task (getting capabiltieis) and
+ * retains
  * itself across configuration changes.
  */
 public class TaskFragment extends Fragment {
@@ -78,6 +79,7 @@ public class TaskFragment extends Fragment {
      */
     public interface TaskCallbacks {
         void onGetCapabilitiesSuccess();
+
         void onGetCapabilitiesFail(int errno);
     }
 }

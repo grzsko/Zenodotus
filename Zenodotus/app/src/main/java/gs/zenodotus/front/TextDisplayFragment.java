@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -143,7 +142,6 @@ public class TextDisplayFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("onoptionsitemselected", "clicked!");
         switch (item.getItemId()) {
             case R.id.action_left:
                 goToPreviousPage();
@@ -217,7 +215,6 @@ public class TextDisplayFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-        Log.d("putting text into", html);
         WebSettings settings = webView.getSettings();
         settings.setDefaultTextEncodingName("utf-8");
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html",
@@ -294,7 +291,7 @@ public class TextDisplayFragment extends Fragment {
     }
 
     public interface TextDisplayFragmentListener {
-        public void showDialog(List<String> textChunks, EditionItem item,
-                               int position);
+        void showDialog(List<String> textChunks, EditionItem item,
+                        int position);
     }
 }

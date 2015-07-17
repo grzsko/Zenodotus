@@ -18,8 +18,6 @@ import gs.zenodotus.back.xml.XmlNode;
  * Possible classes that extend this abstract class: {@link gs.zenodotus.back
  * .OnlineDataFactory}. In future possibly another offline,
  * test factory will be created.
- *
- * @author grzsko
  */
 public abstract class DataFactory {
     protected XmlNode parseXml(InputStream inputStream) {

@@ -1,7 +1,5 @@
 package gs.zenodotus.back;
 
-import android.util.Log;
-
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
@@ -111,9 +109,11 @@ public class OnlineDataFactory extends DataFactory {
                 String mappingString = "";
                 String oldPerseusId;
                 try {
-                    XmlNode onlineNode = editionNode.getChild("online");
+                    XmlNode onlineNode = editionNode
+                            .getChild(ConstantStringsContainer.ONLINE_STR);
 
-                    oldPerseusId = onlineNode.getAttribute("docname");
+                    oldPerseusId = onlineNode
+                            .getAttribute(ConstantStringsContainer.DOCNAME_STR);
                     if (oldPerseusId.endsWith(
                             ConstantStringsContainer.XML_EXTENSION_STR)) {
                         oldPerseusId = oldPerseusId.substring(0,
@@ -129,13 +129,12 @@ public class OnlineDataFactory extends DataFactory {
                         XmlNode citationNode = citationMappingNode.getChild(
                                 ConstantStringsContainer.CITATION_STR);
                         while (citationNode != null) {
-                            mappingString +=
-                                    ":" + citationNode.getAttribute("label") +
-                                            "=%s";
+                            mappingString += ":" + citationNode.getAttribute(
+                                    ConstantStringsContainer.LABEL_STR) +
+                                    "=%s";
                             citationNode = citationNode.getChild(
                                     ConstantStringsContainer.CITATION_STR);
                         }
-                        Log.d("parseHerEditions", "has NO citationMapping!");
                     }
                 } catch (XmlNode.XmlNodeException e) {
                     oldPerseusId = "";
@@ -237,10 +236,9 @@ public class OnlineDataFactory extends DataFactory {
         }
         InputStream inputStream = getXmlFromPerseus(url);
         // Parsing xml with xml parsers is very difficult, because there is
-        // no demarcation between xml and html, so parsing like just sting
+        // no demarcation between xml and html, so parsing like just string
         String inputStreamString =
                 new Scanner(inputStream, "UTF-8").useDelimiter("\\A").next();
-        Log.d("getTextChunk", inputStreamString);
         String bodyOfAnswer;
         if (askOldPerseusInstance) {
             bodyOfAnswer = getBodyOfAnswerOldFormat(inputStreamString);
@@ -253,28 +251,16 @@ public class OnlineDataFactory extends DataFactory {
     private String getBodyOfAnswerNewFormat(String tree)
             throws PerseusProblemException {
         try {
-            return tree.split("<tei:body>")[1].split("</tei:body>")[0];
+            return tree.split(ConstantStringsContainer.TEI_BODY_OPEN_TAG)[1]
+                    .split(ConstantStringsContainer.TEI_BODY_CLOSE_TAG)[0];
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new PerseusProblemException("There is no passage body.");
         }
     }
 
-//    private String recreateHtmlFromParsedTree(XmlNode tree) {
-//        String answer = "<" + tree.getName() + ">";
-//        int numberOfChildren = tree.getChildrenSize();
-//        if (numberOfChildren > 0) {
-//            for (int i = 0; i < numberOfChildren; i++) {
-//                answer += recreateHtmlFromParsedTree(tree.getChild(i));
-//            }
-//        } else {
-//            answer += tree.getText();
-//        }
-//        return answer + "</" + tree.getName() + ">";
-//    }
-
     private String getBodyOfAnswerOldFormat(String tree) {
-        Log.d("getBodyOfAnswerOld", tree.split("<body>")[1]);
-        return tree.split("<body>")[1].split("</body>")[0];
+        return tree.split(ConstantStringsContainer.BODY_OPEN_TAG)[1]
+                .split(ConstantStringsContainer.BODY_CLOSE_TAG)[0];
 
     }
 
@@ -284,7 +270,6 @@ public class OnlineDataFactory extends DataFactory {
 
         String textNumber = String.format(editionItem.mappingInfo,
                 getUrnSuffix(chunkUrn, editionItem));
-        // TODO write smth here!
         return url + textNumber;
     }
 
@@ -306,6 +291,12 @@ public class OnlineDataFactory extends DataFactory {
         static final String EDITION_STR = "edition";
         static final String XML_EXTENSION_STR = ".xml";
         static final String CITATION_STR = "citation";
+        static final String ONLINE_STR = "online";
+        static final String DOCNAME_STR = "docname";
         static final String CIT_MAPPING_STR = CITATION_STR + "Mapping";
+        static final String BODY_OPEN_TAG = "<body>";
+        static final String BODY_CLOSE_TAG = "</body>";
+        static final String TEI_BODY_OPEN_TAG = "<tei:body>";
+        static final String TEI_BODY_CLOSE_TAG = "</tei:body>";
     }
 }

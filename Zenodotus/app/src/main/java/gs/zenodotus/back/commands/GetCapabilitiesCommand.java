@@ -1,7 +1,6 @@
 package gs.zenodotus.back.commands;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -19,7 +18,6 @@ public class GetCapabilitiesCommand extends AsyncTask<Void, Void, Void> {
     private int result = 0;
 
     public GetCapabilitiesCommand(TaskFragment taskFragment) {
-        Log.v("Zenodot", "create new get capabilities");
         this.hostFragment = taskFragment;
     }
 
@@ -34,10 +32,7 @@ public class GetCapabilitiesCommand extends AsyncTask<Void, Void, Void> {
             } catch (IOException e) {
                 e.printStackTrace();
                 this.result = LOST_CONNECTION;
-            } catch (XmlNode.XmlNodeException e) {
-                e.printStackTrace();
-                this.result = BAD_ANSWER;
-            } catch (XmlPullParserException e) {
+            } catch (XmlNode.XmlNodeException | XmlPullParserException e) {
                 e.printStackTrace();
                 this.result = BAD_ANSWER;
             }

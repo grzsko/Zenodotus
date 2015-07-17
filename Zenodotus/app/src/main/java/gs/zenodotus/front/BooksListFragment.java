@@ -3,10 +3,8 @@ package gs.zenodotus.front;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,6 @@ import gs.zenodotus.back.database.Work;
 public class BooksListFragment extends Fragment {
     ExpandableListAdapter adapter;
     GetAuthorsCommand command;
-    Parcelable state;
     private final TextWatcher authorTextWatcher = new TextWatcher() {
 
         public void beforeTextChanged(CharSequence s, int start, int count,
@@ -52,7 +49,6 @@ public class BooksListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("BooksListF", "onCreate");
         this.setRetainInstance(true);
     }
 
@@ -65,8 +61,7 @@ public class BooksListFragment extends Fragment {
         EditText editText =
                 (EditText) rootView.findViewById(R.id.author_search_text);
         editText.addTextChangedListener(authorTextWatcher);
-        listView =
-                (ExpandableListView) rootView.findViewById(R.id.listView);
+        listView = (ExpandableListView) rootView.findViewById(R.id.listView);
 //            listView.setAdapter(adapter);
 //        listView.setSaveEnabled(true);
 ////        if (adapter != null) {

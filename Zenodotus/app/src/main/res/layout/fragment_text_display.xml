@@ -19,5 +19,4 @@
         app:cpv_animAutostart="true"
         app:cpv_indeterminate="true"
         app:cpv_color="@color/grey"/>
-<!-- TODO on large delay progress bar start-->
 </FrameLayout>

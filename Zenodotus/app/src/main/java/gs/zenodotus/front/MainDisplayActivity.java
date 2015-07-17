@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -27,6 +26,10 @@ public class MainDisplayActivity extends FragmentActivity
         EditionsListFragment.EditionsListListener,
         TextDisplayFragment.TextDisplayFragmentListener {
 
+    private static final String TEXT_DISPLAY_STR = "TEXT_DISPLAY";
+    private static final String BOOKS_LIST_STR = "BOOKS_LIST";
+    private static final String EDITIONS_LIST_STR = "EDITIONS_LIST";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +44,8 @@ public class MainDisplayActivity extends FragmentActivity
             firstFragment.setArguments(getIntent().getExtras());
 
             getFragmentManager().beginTransaction()
-                    .add(R.id.fragments_container, firstFragment, "BOOKS_LIST")
-                    .commit();
+                    .add(R.id.fragments_container, firstFragment,
+                            BOOKS_LIST_STR).commit();
         }
     }
 
@@ -56,20 +59,18 @@ public class MainDisplayActivity extends FragmentActivity
 //        EditionsListFragment editionsListFragment =
 //                (EditionsListFragment) getFragmentManager()
 //                        .findFragmentById(R.id.editions_list_fragment);
-//        Log.d("MainDisplayActivity", "getEditionsSuccess");
 //        if (editionsListFragment != null) {
-//            Log.d("MainDisplayActivity", "NOT null");
 //            editionsListFragment.setNewAdapter(editionItems);
 //        } else {
         EditionsListFragment newFragment = new EditionsListFragment();
         BooksListFragment oldFragment = (BooksListFragment) getFragmentManager()
-                .findFragmentByTag("BOOKS_LIST");
+                .findFragmentByTag(BOOKS_LIST_STR);
 
         FragmentTransaction transaction =
                 getFragmentManager().beginTransaction();
         transaction.hide(oldFragment);
         transaction
-                .add(R.id.fragments_container, newFragment, "EDITIONS_LIST");
+                .add(R.id.fragments_container, newFragment, EDITIONS_LIST_STR);
 
         transaction.commit();
         newFragment.insertNewEditionsList(editionItems);
@@ -100,11 +101,11 @@ public class MainDisplayActivity extends FragmentActivity
                 getFragmentManager().beginTransaction();
         EditionsListFragment oldFragment =
                 (EditionsListFragment) getFragmentManager()
-                        .findFragmentByTag("EDITIONS_LIST");
+                        .findFragmentByTag(EDITIONS_LIST_STR);
         transaction.hide(oldFragment);
-        transaction.add(R.id.fragments_container, newFragment, "TEXT_DISPLAY");
+        transaction
+                .add(R.id.fragments_container, newFragment, TEXT_DISPLAY_STR);
         transaction.commit();
-        Log.d("MaindisplayActivity", "before new set item to show");
         newFragment.setItemToShow(item);
 //        }
     }
@@ -119,13 +120,12 @@ public class MainDisplayActivity extends FragmentActivity
 
     @Override
     public void onBackPressed() {
-        // TODO END THIS FUNCTION!
         TextDisplayFragment textDisplayFragment =
                 (TextDisplayFragment) getFragmentManager()
-                        .findFragmentByTag("TEXT_DISPLAY");
+                        .findFragmentByTag(TEXT_DISPLAY_STR);
         EditionsListFragment editionsListFragment =
                 (EditionsListFragment) getFragmentManager()
-                        .findFragmentByTag("EDITIONS_LIST");
+                        .findFragmentByTag(EDITIONS_LIST_STR);
         FragmentTransaction transaction =
                 getFragmentManager().beginTransaction();
         if (textDisplayFragment != null) {
@@ -136,26 +136,28 @@ public class MainDisplayActivity extends FragmentActivity
             transaction.remove(editionsListFragment);
             BooksListFragment booksListFragment =
                     (BooksListFragment) getFragmentManager()
-                            .findFragmentByTag("BOOKS_LIST");
+                            .findFragmentByTag(BOOKS_LIST_STR);
             booksListFragment.cancelCommands();
             transaction.show(booksListFragment);
         }
         transaction.commit();
     }
 
-    public void doPositiveClick(DialogInterface dialog, int whichButton) {
+    private TextDisplayFragment doClick(DialogInterface dialog) {
         dialog.dismiss();
         TextDisplayFragment textDisplayFragment =
                 (TextDisplayFragment) getFragmentManager()
-                        .findFragmentByTag("TEXT_DISPLAY");
+                        .findFragmentByTag(TEXT_DISPLAY_STR);
+        return textDisplayFragment;
+    }
+
+    public void doPositiveClick(DialogInterface dialog, int whichButton) {
+        TextDisplayFragment textDisplayFragment = doClick(dialog);
         textDisplayFragment.showTextFromOutside(whichButton);
     }
 
     public void doNegativeClick(DialogInterface dialog) {
-        dialog.dismiss();
-        TextDisplayFragment textDisplayFragment =
-                (TextDisplayFragment) getFragmentManager()
-                        .findFragmentByTag("TEXT_DISPLAY");
+        TextDisplayFragment textDisplayFragment = doClick(dialog);
         textDisplayFragment.updateButtonsVisibility();
     }
 
@@ -202,14 +204,12 @@ public class MainDisplayActivity extends FragmentActivity
         }
 
         private String[] getReadableLabels() {
-            // TODO add progress bar because it works very slowly
             if (item.hasMappingInfo) {
                 String[] readableLabels = new String[urns.size()];
                 String mappingString = item.mappingInfo;
                 mappingString = mappingString.replace(":", ", ");
                 mappingString = mappingString.replace("=", " ");
                 mappingString = mappingString.substring(1);
-                Log.d("getReadableLabel", mappingString);
                 for (int i = 0; i < urns.size(); i++) {
                     try {
                         try {
@@ -227,7 +227,6 @@ public class MainDisplayActivity extends FragmentActivity
             } else {
                 return urns.toArray(new String[urns.size()]);
             }
-
         }
 
         public void setCollections(List<String> textChunks, EditionItem itemArg,
